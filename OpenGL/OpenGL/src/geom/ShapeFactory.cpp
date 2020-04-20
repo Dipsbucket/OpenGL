@@ -1,5 +1,20 @@
 #include "ShapeFactory.h"
 
+Shape ShapeFactory::createDefault(ShapeConstants::DebugShape debugShape)
+{
+	Shape shape;
+	switch (debugShape)
+	{
+		case ShapeConstants::DebugShape::TRIANGLE:
+			shape = buildTriangle();
+			break;
+		default:
+			break;
+	}
+
+	return shape;
+}
+
 Shape ShapeFactory::buildTriangle()
 {
 	std::string name = "Triangle";
@@ -8,8 +23,8 @@ Shape ShapeFactory::buildTriangle()
 	const float array_vertices[] =
 	{
 		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f,  0.5f, 0.0f
+		 0.5f, -0.5f, 0.0f,
+		 0.0f,  0.5f, 0.0f
 	};
 
 	const int size_indexes = 3;

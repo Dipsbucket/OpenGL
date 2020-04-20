@@ -1,23 +1,24 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "glm/glm.hpp"
+#include <iostream>
 
-#include "ui/ImGuiWindow.h"
-#include "geom/Shape.h"
+#include "opengl/ui/ImGuiWindow.h"
+#include "opengl/VertexBuffer.h"
+#include "opengl/Shader.h"
+#include "opengl/ShaderProgram.h"
 #include "geom/ShapeFactory.h"
 #include "utils/StringUtils.h"
-#include "utils/ShaderUtils.h"
 
 // =========================================================================================================
 // Primitives
 // =========================================================================================================
 
-GLFWwindow* createOpenGLWindow(std::string title);
-void configureGlfw(GLFWwindow* window);
-void render(GLFWwindow* window, ImGuiWindow guiWindow);
+int initOpenGL();
+void printOpenGLInfos();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void manageShaders();
+void render(GLFWwindow* window, ImGuiWindow guiWindow);
 
 // =========================================================================================================
 // Constantes
@@ -33,22 +34,27 @@ const char* GLSL_VERSION = "#version 430 core";
 // Variables
 // =========================================================================================================
 
-unsigned int VBO, VAO;
-unsigned int shaderProgram;
+GLFWwindow* window;
 
 // =========================================================================================================
 // Méthodes
 // =========================================================================================================
 
-GLFWwindow* createOpenGLWindow(std::string title)
+int initOpenGL()
 {
-	const char* cTitle = StringUtils::parseString<const char*>(title);
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, cTitle, NULL, NULL);
-	return window;
-}
+	// Initialisation de glfw
+	glfwInit();
 
-void configureGlfw(GLFWwindow* window)
-{
+	// Création de la window
+	const char* cTitle = StringUtils::parseString<const char*>("OpenGL");
+	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, cTitle, NULL, NULL);
+	if (window == NULL)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
+
 	// Détermine la version d'openGL à utiliser
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_MAJOR_VERSION);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR_VERSION);
@@ -62,6 +68,30 @@ void configureGlfw(GLFWwindow* window)
 
 	// Gestion des redimensions de la window
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	// Charge glad: load all OpenGL function pointers
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
+
+	printOpenGLInfos();
+
+	return 0;
+}
+
+void printOpenGLInfos()
+{
+	std::cout << "********* Hardware *********" << std::endl;
+	std::cout << "Fabricant : " << glGetString(GL_VENDOR) << std::endl;
+	std::cout << "Carte graphique: " << glGetString(GL_RENDERER) << std::endl;
+	std::cout << "Version OpenGL : " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "Version GLSL : " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+	std::cout << std::endl;
+	std::cout << "********* Currently running *********" << std::endl;
+	std::cout << "Version OpenGL : " << OPENGL_MAJOR_VERSION * 100 + OPENGL_MINOR_VERSION * 10 << std::endl;
+	std::cout << "Version GLSL : " << GLSL_VERSION << std::endl;
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -78,20 +108,37 @@ void processInput(GLFWwindow* window)
 	}
 }
 
-void manageShaders()
-{
-	unsigned int vs = ShaderUtils::createShader("res/shaders/vertex/default.vert", GL_VERTEX_SHADER);
-	unsigned int fs = ShaderUtils::createShader("res/shaders/fragment/default.frag", GL_FRAGMENT_SHADER);
-
-	std::list <unsigned int> sList;
-	sList.push_back(vs);
-	sList.push_back(fs);
-
-	ShaderUtils::createProgram(shaderProgram, sList);
-}
-
 void render(GLFWwindow* window, ImGuiWindow guiWindow)
 {
+	Shape triangle = ShapeFactory::buildTriangle();
+
+	// Création et bind du buffer
+	VertexBuffer vbo(triangle.vertices.data(), triangle.size);
+
+	// Doit être appelé pour chaque attribute, ici attribute = vertex.positions
+	// 1. index de l'attribute : 0 pour vertex.positions
+	// 2. vertex.positions > nombre de float pour une coordonnée, ici xyz donc 3
+	// 3. type de la donnée
+	// 4. Forcer la normalisation
+	// 5. vertex.positions > nb bytes séparant 2 coordonnées, ici 3 float par coordonnée
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	// Active le vertex attribute array, ici vertex.position donc 0
+	glEnableVertexAttribArray(0);
+
+	// SHADER
+	Shader vs("res/shaders/vertex/default.vert", GL_VERTEX_SHADER);
+	Shader fs("res/shaders/fragment/default.frag", GL_FRAGMENT_SHADER);
+
+	ShaderProgram sp;
+	sp.attachShader(vs.id);
+	sp.attachShader(fs.id);
+	sp.linkProgram();
+	sp.validateProgram();
+
+	vs.~Shader();
+	fs.~Shader();
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Ecoute d'évenements (glfw)
@@ -101,13 +148,8 @@ void render(GLFWwindow* window, ImGuiWindow guiWindow)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// draw our first triangle
-		glUseProgram(shaderProgram);
-		// seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-		glBindVertexArray(VAO);
+		sp.bind();
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		// no need to unbind it every time
-		// glBindVertexArray(0);
 
 		// Creation de la windowGui
 		guiWindow.createDefault();
@@ -116,28 +158,16 @@ void render(GLFWwindow* window, ImGuiWindow guiWindow)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	vbo.~VertexBuffer();
+	sp.~ShaderProgram();
 }
 
 int main()
 {
-	// Initialisation de glfw
-	glfwInit();
-
-	// Création de la window
-	GLFWwindow* window = createOpenGLWindow("M2 TP");
-	if (window == NULL)
+	// On ne continue pas si l'init a fail
+	if (initOpenGL() != 0)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	configureGlfw(window);
-
-	// Charge glad: load all OpenGL function pointers
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
 

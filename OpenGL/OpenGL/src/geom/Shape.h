@@ -9,14 +9,13 @@
 
 class Shape :public hasName
 {
-	private:
+	public:
 	std::string name;
+	unsigned int size;
 	std::vector<float> vertices, colors, normals;
 	std::vector<int> indexes;
 
-	public:
-	unsigned int VBO;
-
+	Shape();
 	Shape(std::string name, std::vector<float> vertices, std::vector<int> indexes);
 	~Shape();
 
