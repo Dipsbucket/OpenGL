@@ -935,9 +935,6 @@
     <ClInclude Include="src\utils\FileUtils.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\TypeUtils.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="src\utils\StringUtils.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>

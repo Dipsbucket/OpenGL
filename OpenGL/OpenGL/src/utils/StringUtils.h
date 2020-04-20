@@ -7,6 +7,7 @@ class StringUtils
 {
 	public:
 	template <class T> static std::string toString(std::vector<T> value);
+	template <class T> static T parseString(std::string value);
 };
 
 template<class T>
@@ -25,4 +26,23 @@ inline std::string StringUtils::toString(std::vector<T> value)
 	}
 
 	return res;
+}
+
+template<class T>
+inline T StringUtils::parseString(std::string value)
+{
+	return T();
+}
+
+template< >
+inline const char* StringUtils::parseString(std::string value)
+{
+	if (!value.empty())
+	{
+		char* res = new char[value.length() + 1];
+		std::strcpy(res, value.c_str());
+		return res;
+	}
+
+	return nullptr;
 }
