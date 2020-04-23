@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\..\mgsi\glad\src\glad.c" />
+    <ClCompile Include="src\opengl\IndexBuffer.cpp" />
     <ClCompile Include="src\geom\Shape.cpp" />
     <ClCompile Include="src\geom\ShapeFactory.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="src\geom\ShapeConstants.h" />
     <ClInclude Include="src\geom\ShapeFactory.h" />
     <ClInclude Include="src\interfaces\hasName.h" />
+    <ClInclude Include="src\opengl\IndexBuffer.h" />
     <ClInclude Include="src\opengl\Shader.h" />
     <ClInclude Include="src\opengl\ShaderProgram.h" />
     <ClInclude Include="src\opengl\ui\ImGuiWindow.h" />

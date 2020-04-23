@@ -11,12 +11,12 @@ class Shape :public hasName
 {
 	public:
 	std::string name;
-	unsigned int size;
+	unsigned int verticesSize, indexesSize;
 	std::vector<float> vertices, colors, normals;
-	std::vector<int> indexes;
+	std::vector<unsigned int> indexes;
 
 	Shape();
-	Shape(std::string name, std::vector<float> vertices, std::vector<int> indexes);
+	Shape(std::string name, std::vector<float> vertices, std::vector<unsigned int> indexes);
 	~Shape();
 
 	std::string getName();

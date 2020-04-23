@@ -7,4 +7,5 @@ class ShapeFactory
 	public:
 	static Shape createDefault(ShapeConstants::DebugShape debugShape);
 	static Shape buildTriangle();
+	static Shape buildQuad();
 };

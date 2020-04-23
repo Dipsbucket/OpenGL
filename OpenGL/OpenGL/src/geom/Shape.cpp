@@ -5,12 +5,13 @@ Shape::Shape()
 	this->name = "Unknown";
 }
 
-Shape::Shape(std::string name, std::vector<float> vertices, std::vector<int> indexes)
+Shape::Shape(std::string name, std::vector<float> vertices, std::vector<unsigned int> indexes)
 {
 	this->name = !name.empty() ? name : "Unknown";
 	this->vertices = vertices;
-	this->size = vertices.size() * sizeof(float);
+	this->verticesSize = vertices.size() * sizeof(float);
 	this->indexes = indexes;
+	this->indexesSize = indexes.size() * sizeof(unsigned int);
 }
 
 Shape::~Shape()

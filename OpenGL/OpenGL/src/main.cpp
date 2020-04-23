@@ -5,6 +5,7 @@
 
 #include "opengl/ui/ImGuiWindow.h"
 #include "opengl/VertexBuffer.h"
+#include "opengl/IndexBuffer.h"
 #include "opengl/Shader.h"
 #include "opengl/ShaderProgram.h"
 #include "geom/ShapeFactory.h"
@@ -110,13 +111,19 @@ void processInput(GLFWwindow* window)
 
 void render(GLFWwindow* window, ImGuiWindow guiWindow)
 {
-	Shape triangle = ShapeFactory::buildTriangle();
+	// Création de l'objet à rendre
+	//Shape triangle = ShapeFactory::buildTriangle();
+	Shape quad = ShapeFactory::buildQuad();
 
-	// Création et bind du buffer
-	VertexBuffer vbo(triangle.vertices.data(), triangle.size);
+	// Création et bind du VertexBuffer
+	VertexBuffer vbo(quad.vertices.data(), quad.verticesSize);
+
+	// Création et bind de l'IndexBuffer
+	IndexBuffer ibo(quad.indexes.data(), quad.indexesSize);
 
 	// Doit être appelé pour chaque attribute, ici attribute = vertex.positions
 	// 1. index de l'attribute : 0 pour vertex.positions
+	//	1.1	Doit match avec le layout 0 du VertexShader !!!
 	// 2. vertex.positions > nombre de float pour une coordonnée, ici xyz donc 3
 	// 3. type de la donnée
 	// 4. Forcer la normalisation
@@ -126,18 +133,29 @@ void render(GLFWwindow* window, ImGuiWindow guiWindow)
 	// Active le vertex attribute array, ici vertex.position donc 0
 	glEnableVertexAttribArray(0);
 
-	// SHADER
+	// Création et compilation des shaders
 	Shader vs("res/shaders/vertex/default.vert", GL_VERTEX_SHADER);
 	Shader fs("res/shaders/fragment/default.frag", GL_FRAGMENT_SHADER);
 
+	// Création du Shader program et assignation des shaders
 	ShaderProgram sp;
 	sp.attachShader(vs.id);
 	sp.attachShader(fs.id);
 	sp.linkProgram();
 	sp.validateProgram();
 
+	// Destruction des shaders compilés
 	vs.~Shader();
 	fs.~Shader();
+
+	// Bind du shaderProgram
+	sp.bind();
+
+	// Récupération et assignation d'un uniform
+	// Attention le ShaderProgram doit exister et être bind
+	int u_Index = glGetUniformLocation(sp.id, "u_Color");
+	assert(u_Index != -1);
+	glUniform4f(u_Index, 0.9f, 0.0f, 0.0f, 1.0f);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -148,8 +166,18 @@ void render(GLFWwindow* window, ImGuiWindow guiWindow)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		sp.bind();
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// Dessine avec VertexBuffer sans IndexBuffer
+		// 1. Mode de dessin
+		// 2. A partir de quel vertex on veut dessiner : offset possible
+		// 3. Nombre de vertex a dessiner
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		// Dessine avec VertexBuffer et IndexBuffer
+		// 1. Mode de dessin
+		// 2. Nombre d'indice à dessiner
+		// 3. Type de données dans l'IndexBuffer
+		// 4. Pointeur vers l'IndexBuffer. No need car bind dans le constructeur
+		glDrawElements(GL_TRIANGLES, quad.indexesSize, GL_UNSIGNED_INT, nullptr);
 
 		// Creation de la windowGui
 		guiWindow.createDefault();
@@ -171,7 +199,7 @@ int main()
 		return -1;
 	}
 
-	// /!\ Initialisation de ImGui post Glad (func pointers)
+	// /!\ Initialisation de ImGui post Glad (OpenGL func pointers)
 	ImGuiWindow guiWindow(window, GLSL_VERSION);
 
 	// Loop de rendu
