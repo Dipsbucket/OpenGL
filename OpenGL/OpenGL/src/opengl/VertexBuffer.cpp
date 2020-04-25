@@ -6,7 +6,7 @@ VertexBuffer::VertexBuffer(const void* data, unsigned int size)
 	glGenBuffers(1, &this->id);
 
 	// Binding du buffer pour le rendre actif
-	glBindBuffer(GL_ARRAY_BUFFER, this->id);
+	this->bind();
 
 	// Déclaration de la taille des données contenues et pointeur vers les données
 	glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);

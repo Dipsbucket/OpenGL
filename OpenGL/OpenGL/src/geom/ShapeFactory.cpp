@@ -1,12 +1,15 @@
 #include "ShapeFactory.h"
 
-Shape ShapeFactory::createDefault(ShapeConstants::DebugShape debugShape)
+Shape ShapeFactory::createDefault(DebugShape debugShape)
 {
 	Shape shape;
 	switch (debugShape)
 	{
-		case ShapeConstants::DebugShape::TRIANGLE:
+		case DebugShape::TRIANGLE:
 			shape = buildTriangle();
+			break;
+		case DebugShape::QUAD:
+			shape = buildQuad();
 			break;
 		default:
 			break;

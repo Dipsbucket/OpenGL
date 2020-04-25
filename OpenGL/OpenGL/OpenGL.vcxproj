@@ -154,15 +154,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\..\mgsi\glad\src\glad.c" />
+    <ClCompile Include="src\Constants.cpp" />
     <ClCompile Include="src\opengl\IndexBuffer.cpp" />
     <ClCompile Include="src\geom\Shape.cpp" />
     <ClCompile Include="src\geom\ShapeFactory.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\opengl\Renderer.cpp" />
     <ClCompile Include="src\opengl\Shader.cpp" />
     <ClCompile Include="src\opengl\ShaderProgram.cpp" />
     <ClCompile Include="src\opengl\ui\ImGuiWindow.cpp" />
     <ClCompile Include="src\opengl\utils\ShaderUtils.cpp" />
+    <ClCompile Include="src\opengl\VertexArray.cpp" />
     <ClCompile Include="src\opengl\VertexBuffer.cpp" />
+    <ClCompile Include="src\opengl\VertexBufferLayout.cpp" />
     <ClCompile Include="src\utils\FileUtils.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
@@ -173,16 +177,19 @@
     <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\geom\Shape.h" />
-    <ClInclude Include="src\geom\ShapeConstants.h" />
     <ClInclude Include="src\geom\ShapeFactory.h" />
     <ClInclude Include="src\interfaces\hasName.h" />
     <ClInclude Include="src\opengl\IndexBuffer.h" />
+    <ClInclude Include="src\opengl\Renderer.h" />
     <ClInclude Include="src\opengl\Shader.h" />
     <ClInclude Include="src\opengl\ShaderProgram.h" />
     <ClInclude Include="src\opengl\ui\ImGuiWindow.h" />
     <ClInclude Include="src\opengl\utils\ShaderUtils.h" />
+    <ClInclude Include="src\opengl\VertexArray.h" />
     <ClInclude Include="src\opengl\VertexBuffer.h" />
+    <ClInclude Include="src\opengl\VertexBufferLayout.h" />
     <ClInclude Include="src\utils\FileUtils.h" />
     <ClInclude Include="src\utils\StringUtils.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />

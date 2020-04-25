@@ -37,12 +37,29 @@ void ShaderProgram::validateProgram() const
 	glValidateProgram(this->id);
 }
 
-void ShaderProgram::bind()
+void ShaderProgram::bind() const
 {
 	glUseProgram(this->id);
 }
 
-void ShaderProgram::unbind()
+void ShaderProgram::unbind() const
 {
 	glUseProgram(0);
+}
+
+void ShaderProgram::setUniform4f(const std::string& name, glm::vec4& vec)
+{
+	glUniform4f(this->getUniformLocation(name), vec.x, vec.y, vec.z, vec.w);
+}
+
+int ShaderProgram::getUniformLocation(const std::string& name)
+{
+	if (this->uniformLocationCache.find(name) == uniformLocationCache.end())
+	{
+		int uniformLocation = glGetUniformLocation(this->id, name.c_str());
+		// TODO JT : GERER -1 uniform n'éxiste pas
+		this->uniformLocationCache[name] = uniformLocation;
+	}
+
+	return this->uniformLocationCache[name];
 }

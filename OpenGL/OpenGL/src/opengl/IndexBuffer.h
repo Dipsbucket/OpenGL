@@ -3,11 +3,11 @@
 
 class IndexBuffer
 {
-	private:
-	unsigned int id;
-
 	public:
-	IndexBuffer(const void* data, unsigned int size);
+	unsigned int id;
+	unsigned int count;
+
+	IndexBuffer(const void* data, unsigned int count);
 	~IndexBuffer();
 
 	void bind() const;
