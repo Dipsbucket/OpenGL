@@ -8,12 +8,14 @@ namespace OpenGLConstants
 	extern const unsigned int SCREEN_WIDTH;
 	extern const unsigned int SCREEN_HEIGHT;
 	extern const char* GLSL_VERSION;
+
+	extern const unsigned int IMGUI_WIDTH_OFFSET;
+	extern const unsigned int IMGUI_HEIGHT_OFFSET;
 }
 
 namespace BufferConstants
 {
-	// vertex.positions {x, y, z} : 3 floats
-	extern const unsigned int POSITION_PARAMETER_COUNT;
+	extern const unsigned int XYZ_PARAM_COUNT;
 }
 
 namespace ShaderConstants

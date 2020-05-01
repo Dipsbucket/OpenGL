@@ -14,12 +14,19 @@ void Renderer::clear() const
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer::draw(const VertexArray& va, const IndexBuffer& ibo, const ShaderProgram& sp)
+void Renderer::clearZone(unsigned int x, unsigned int y, unsigned int width, unsigned int height) const
 {
-	sp.bind();
-	va.bind();
-	ibo.bind();
+	glDisable(GL_SCISSOR_TEST);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glScissor(x, y, width, height);
+	glEnable(GL_SCISSOR_TEST);
 
+	this->clear();
+}
+
+void Renderer::draw(const Mesh& mesh)
+{
 	// Dessine avec VertexBuffer sans IndexBuffer
 	// 1. Mode de dessin
 	// 2. A partir de quel vertex on veut dessiner : offset possible
@@ -31,5 +38,9 @@ void Renderer::draw(const VertexArray& va, const IndexBuffer& ibo, const ShaderP
 	// 2. Nombre d'indice à dessiner
 	// 3. Type de données dans l'IndexBuffer
 	// 4. Pointeur vers l'IndexBuffer. No need car bind dans le constructeur
-	glDrawElements(GL_TRIANGLES, ibo.count, GL_UNSIGNED_INT, nullptr);
+
+	// TODO JT : A mettre dans Mesh
+	glBindVertexArray(mesh.vao);
+	glDrawElements(GL_TRIANGLES, mesh.indicesSize, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }

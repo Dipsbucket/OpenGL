@@ -1,8 +1,7 @@
 #pragma once
 #include <glad/glad.h>
-#include "VertexArray.h"
-#include "IndexBuffer.h"
 #include "ShaderProgram.h"
+#include "../geom/Mesh.h"
 
 class Renderer
 {
@@ -11,5 +10,6 @@ class Renderer
 	~Renderer();
 
 	void clear() const;
-	void draw(const VertexArray& va, const IndexBuffer& ibo, const ShaderProgram& sp);
+	void clearZone(unsigned int x, unsigned int y, unsigned int width, unsigned int height) const;
+	void draw(const Mesh& mesh);
 };

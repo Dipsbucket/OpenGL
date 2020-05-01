@@ -155,18 +155,15 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\..\mgsi\glad\src\glad.c" />
     <ClCompile Include="src\Constants.cpp" />
-    <ClCompile Include="src\opengl\IndexBuffer.cpp" />
-    <ClCompile Include="src\geom\Shape.cpp" />
-    <ClCompile Include="src\geom\ShapeFactory.cpp" />
+    <ClCompile Include="src\geom\Mesh.cpp" />
+    <ClCompile Include="src\geom\MeshFactory.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\opengl\Renderer.cpp" />
     <ClCompile Include="src\opengl\Shader.cpp" />
+    <ClCompile Include="src\opengl\ShaderLoader.cpp" />
     <ClCompile Include="src\opengl\ShaderProgram.cpp" />
     <ClCompile Include="src\opengl\ui\ImGuiWindow.cpp" />
     <ClCompile Include="src\opengl\utils\ShaderUtils.cpp" />
-    <ClCompile Include="src\opengl\VertexArray.cpp" />
-    <ClCompile Include="src\opengl\VertexBuffer.cpp" />
-    <ClCompile Include="src\opengl\VertexBufferLayout.cpp" />
     <ClCompile Include="src\utils\FileUtils.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
@@ -178,18 +175,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Constants.h" />
-    <ClInclude Include="src\geom\Shape.h" />
-    <ClInclude Include="src\geom\ShapeFactory.h" />
+    <ClInclude Include="src\geom\Mesh.h" />
+    <ClInclude Include="src\geom\MeshFactory.h" />
     <ClInclude Include="src\interfaces\hasName.h" />
-    <ClInclude Include="src\opengl\IndexBuffer.h" />
     <ClInclude Include="src\opengl\Renderer.h" />
     <ClInclude Include="src\opengl\Shader.h" />
+    <ClInclude Include="src\opengl\ShaderLoader.h" />
     <ClInclude Include="src\opengl\ShaderProgram.h" />
     <ClInclude Include="src\opengl\ui\ImGuiWindow.h" />
     <ClInclude Include="src\opengl\utils\ShaderUtils.h" />
-    <ClInclude Include="src\opengl\VertexArray.h" />
-    <ClInclude Include="src\opengl\VertexBuffer.h" />
-    <ClInclude Include="src\opengl\VertexBufferLayout.h" />
     <ClInclude Include="src\utils\FileUtils.h" />
     <ClInclude Include="src\utils\StringUtils.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
@@ -484,6 +478,7 @@
     <ClInclude Include="src\vendor\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\fragment\colorInterpolation.frag" />
     <None Include="res\shaders\fragment\default.frag" />
     <None Include="res\shaders\vertex\default.vert" />
     <None Include="src\vendor\glm\detail\func_common.inl" />

@@ -3,20 +3,17 @@
 #include <iostream>
 
 #include "glm/glm.hpp"
-#include <glm\gtx\string_cast.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "Constants.h"
 
 #include "opengl/ui/ImGuiWindow.h"
 #include "opengl/Renderer.h"
-#include "opengl/VertexBuffer.h"
-#include "opengl/IndexBuffer.h"
-#include "opengl/VertexArray.h"
+#include "opengl/ShaderLoader.h"
 #include "opengl/Shader.h"
 #include "opengl/ShaderProgram.h"
 
-#include "geom/ShapeFactory.h"
+#include "geom/MeshFactory.h"
 
 #include "utils/StringUtils.h"
 
@@ -28,13 +25,20 @@ int initOpenGL();
 void printOpenGLInfos();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void render(GLFWwindow* window, ImGuiWindow guiWindow);
+void computeViewport(int width, int height);
+void refreshViewport(int width, int height);
+void render(GLFWwindow* window);
+void test();
 
 // =========================================================================================================
 // Variables
 // =========================================================================================================
 
-GLFWwindow* window;
+GLFWwindow* g_window;
+int g_width, g_height;
+
+ImGuiWindow guiWindow;
+double g_widthRatio;
 
 // =========================================================================================================
 // Méthodes
@@ -47,8 +51,8 @@ int initOpenGL()
 
 	// Création de la window
 	const char* cTitle = StringUtils::parseString<const char*>("OpenGL");
-	window = glfwCreateWindow(OpenGLConstants::SCREEN_WIDTH, OpenGLConstants::SCREEN_HEIGHT, cTitle, NULL, NULL);
-	if (window == NULL)
+	g_window = glfwCreateWindow(OpenGLConstants::SCREEN_WIDTH, OpenGLConstants::SCREEN_HEIGHT, cTitle, NULL, NULL);
+	if (g_window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -61,20 +65,25 @@ int initOpenGL()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Setup la window
-	glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(g_window);
 
 	// Enable synchro verticale
 	glfwSwapInterval(1);
 
-	// Gestion des redimensions de la window
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	// Bind de la function gérant la redimension de la window
+	glfwSetFramebufferSizeCallback(g_window, framebuffer_size_callback);
 
 	// Charge glad: load all OpenGL function pointers
+	// A faire avant tout appel à une méthode OpenGL
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
+
+	g_width = OpenGLConstants::SCREEN_WIDTH;
+	g_height = OpenGLConstants::SCREEN_HEIGHT;
+	g_widthRatio = (double)1 / (double)3;
 
 	printOpenGLInfos();
 
@@ -96,7 +105,11 @@ void printOpenGLInfos()
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	glViewport(0, 0, width, height);
+	int w_width, w_height;
+	glfwGetWindowSize(window, &w_width, &w_height);
+
+	guiWindow.refresh(w_width, w_height);
+	computeViewport(width, height);
 }
 
 void processInput(GLFWwindow* window)
@@ -108,75 +121,94 @@ void processInput(GLFWwindow* window)
 	}
 }
 
-void render(GLFWwindow* window, ImGuiWindow guiWindow)
+void computeViewport(int width, int height)
+{
+	g_width = width - (width * g_widthRatio);
+	g_height = height;
+
+	refreshViewport(g_width, g_height);
+}
+
+void refreshViewport(int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+void render(GLFWwindow* window)
 {
 	// Création de l'objet à rendre
-	//Shape triangle = ShapeFactory::buildTriangle();
-	Shape quad = ShapeFactory::buildQuad();
+	Mesh triangle = MeshFactory::buildTriangle();
 
-	// Création d'un vertexArray
-	VertexArray vao;
+	ShaderLoader shaderLoader;
+	shaderLoader.loadShaders();
+	shaderLoader.compileShaders();
 
-	// Création et bind du VertexBuffer
-	VertexBuffer vbo(quad.vertices.data(), quad.verticesSize);
-	VertexBufferLayout vbl;
-	vbl.push<float>(BufferConstants::POSITION_PARAMETER_COUNT);
-
-	// Bind du vbo au Vao
-	vao.attachBuffer(vbo, vbl);
-
-	// Création et bind de l'IndexBuffer
-	IndexBuffer ibo(quad.indexes.data(), quad.indexesSize);
-
-	// Création et compilation des shaders
-	Shader vs("res/shaders/vertex/default.vert", GL_VERTEX_SHADER);
-	Shader fs("res/shaders/fragment/default.frag", GL_FRAGMENT_SHADER);
-
-	// Création du Shader program et assignation des shaders
-	ShaderProgram sp;
-	sp.attachShader(vs.id);
-	sp.attachShader(fs.id);
-	sp.linkProgram();
-	sp.validateProgram();
-
-	// Destruction des shaders compilés
-	vs.~Shader();
-	fs.~Shader();
-
-	// TODO JT : TEST
-	//std::cout << "********* color *********" << std::endl;
-	//std::cout << "vec4 color : " + glm::to_string(color) << std::endl;
-
+	// Déclaration du renderer
 	Renderer renderer;
+
+	// Propriétés de rendue
+	glPointSize(3.0);
+	glLineWidth(2.0);
 
 	while (!glfwWindowShouldClose(window))
 	{
+		// New Frame ImgGui
+		guiWindow.newFrame();
+
 		// Ecoute d'évenements (glfw)
 		processInput(window);
 
-		renderer.clear();
-
-		// Bind du shaderProgram
-		sp.bind();
-
-		// Récupération et assignation d'un uniform
-		// Attention le ShaderProgram doit exister et être bind
-		glm::vec4 color(0.9f, 0.0f, 0.0f, 1.0f);
-		sp.setUniform4f(ShaderConstants::uColor, color);
-
-		renderer.draw(vao, ibo, sp);
+		renderer.clearZone(0, 0, g_width, g_height);
+		renderer.draw(triangle);
 
 		// Creation de la windowGui
-		guiWindow.createDefault();
+		guiWindow.createToolbox(shaderLoader);
+		//guiWindow.createDefault();
 
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+}
 
-	// TODO JT : TEST
+void test()
+{
+	// Viewport et Scissor
+	//glViewport(0, 0, OpenGLConstants::SCREEN_WIDTH - guiWindow.width, OpenGLConstants::SCREEN_HEIGHT);
+	//glScissor(0, 0, OpenGLConstants::SCREEN_WIDTH - guiWindow.width, OpenGLConstants::SCREEN_HEIGHT);
+	//glEnable(GL_SCISSOR_TEST);
+
+	// Array to vector
+	//std::vector<float> vertices;
+	//vertices.assign(array_vertices, array_vertices + size_vertices);
+	//std::vector<unsigned int> indexes;
+	//indexes.assign(array_indexes, array_indexes + size_indexes);
+
+	// Print le contenu d'un vecteur glm
+	//std::cout << "********* color *********" << std::endl;
+	//std::cout << "vec4 color : " + glm::to_string(color) << std::endl;
+
+	// Creation de la windowGui
+	// Après render.draw
+	//guiWindow.createDefault();
+
+	// Post rendering loop
 	//vbo.~VertexBuffer();
 	//sp.~ShaderProgram();
+
+	//vs.~Shader();
+	//fs.~Shader();
+
+	// (*iter)
+	//if (!shaders.empty())
+	//{
+	//	for (std::vector<Shader*>::iterator iterator = shaders.begin(); iterator != shaders.end(); iterator++)
+	//	{
+	//		glDetachShader(this->id, (*iterator)->id);
+	//		glDeleteShader((*iterator)->id);
+	//	}
+
+	//	this->unbind();
+	//}
 }
 
 int main()
@@ -188,16 +220,19 @@ int main()
 	}
 
 	// /!\ Initialisation de ImGui post Glad (OpenGL func pointers)
-	ImGuiWindow guiWindow(window, OpenGLConstants::GLSL_VERSION);
+	int w_width, w_height;
+	glfwGetWindowSize(g_window, &w_width, &w_height);
+	guiWindow = ImGuiWindow(g_window, OpenGLConstants::GLSL_VERSION, w_width, w_height);
+	computeViewport(g_width, g_height);
 
 	// Loop de rendu
-	render(window, guiWindow);
+	render(g_window);
 
 	// Cleanup ImGui
 	guiWindow.clear();
 
 	// Cleanup openGL
-	glfwDestroyWindow(window);
+	glfwDestroyWindow(g_window);
 	glfwTerminate();
 
 	return 0;

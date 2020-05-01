@@ -1,6 +1,6 @@
 #include "ShaderUtils.h"
 
-void ShaderUtils::printErrors(unsigned int& id, GLenum errorType, GLenum shaderType)
+void ShaderUtils::printShaderErrors(unsigned int& id, GLenum errorType, GLenum shaderType)
 {
 	int success;
 	glGetShaderiv(id, errorType, &success);
@@ -16,6 +16,26 @@ void ShaderUtils::printErrors(unsigned int& id, GLenum errorType, GLenum shaderT
 		std::cout << message << std::endl;
 
 		glDeleteShader(id);
+		free(message);
+	}
+}
+
+void ShaderUtils::printShaderProgramErrors(unsigned int& id, GLenum errorType)
+{
+	int success;
+	glGetProgramiv(id, errorType, &success);
+
+	if (!success)
+	{
+		int length;
+		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
+		char* message = (char*)malloc(length * sizeof(char));
+		glGetProgramInfoLog(id, length, &length, message);
+
+		std::cout << "SHADER_PROGRAM ERROR > ErrorType : " + getErrorType(errorType) + " :" << std::endl;
+		std::cout << message << std::endl;
+
+		glDeleteProgram(id);
 		free(message);
 	}
 }

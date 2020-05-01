@@ -32,7 +32,8 @@ inline std::string StringUtils::toString(std::vector<T> value)
 template<class T>
 inline T StringUtils::parseString(std::string value)
 {
-	return T();
+	// Non implémenté
+	return nullptr;
 }
 
 template< >

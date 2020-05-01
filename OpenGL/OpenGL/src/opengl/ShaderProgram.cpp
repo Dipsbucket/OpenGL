@@ -27,9 +27,12 @@ void ShaderProgram::attachShaders(std::list<unsigned int> ids) const
 	}
 }
 
-void ShaderProgram::linkProgram() const
+void ShaderProgram::linkProgram()
 {
 	glLinkProgram(this->id);
+
+	// TODO JT : Handle linking errors
+	ShaderUtils::printShaderProgramErrors(this->id, GL_LINK_STATUS);
 }
 
 void ShaderProgram::validateProgram() const
@@ -45,6 +48,12 @@ void ShaderProgram::bind() const
 void ShaderProgram::unbind() const
 {
 	glUseProgram(0);
+}
+
+void ShaderProgram::clear() const
+{
+	this->unbind();
+	glDeleteProgram(this->id);
 }
 
 void ShaderProgram::setUniform4f(const std::string& name, glm::vec4& vec)
