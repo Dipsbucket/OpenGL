@@ -1,7 +1,9 @@
 #pragma once
+#include <iterator>
+#include <vector>
 #include <glad/glad.h>
-#include "ShaderProgram.h"
-#include "../geom/Mesh.h"
+
+#include "../core/Object3D.h"
 
 class Renderer
 {
@@ -11,5 +13,5 @@ class Renderer
 
 	void clear() const;
 	void clearZone(unsigned int x, unsigned int y, unsigned int width, unsigned int height) const;
-	void draw(const Mesh& mesh);
+	void draw(Object3D* rootNode);
 };

@@ -5,7 +5,9 @@
 class hasName
 {
 	public:
-	virtual std::string getName() = 0;
-	virtual const char* getNameAsChar() = 0;
-	virtual std::string toString() = 0;
+	std::string name;
+
+	virtual std::string getName();
+	virtual const char* getNameAsChar();
+	virtual std::string toString();
 };

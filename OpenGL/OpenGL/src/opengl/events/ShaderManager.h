@@ -1,27 +1,33 @@
 #pragma once
-#include <glad/glad.h>
-#include <string>
-#include <iterator>
-#include <vector>
-#include <unordered_map>
+//#include <glad/glad.h>
+//#include <string>
+//#include <iterator>
+//#include <vector>
+//#include <unordered_map>
+//
+//#include "glm/glm.hpp"
+//#include "glm/gtc/matrix_transform.hpp"
+#include "../ShaderProgram.h"
+#include "../Shader.h"
+//#include "Camera.h"
 
-#include "glm/glm.hpp"
-#include "ShaderProgram.h"
-#include "Shader.h"
-
-class ShaderLoader
+class ShaderManager
 {
 	public:
-	ShaderLoader();
-	~ShaderLoader();
+
+	ShaderManager();
+	~ShaderManager();
 
 	void loadShaders();
 	void compileShaders();
 	void setUniforms();
+	void setMVPUniforms(glm::mat4& view, glm::mat4& projection);
 
 	void setCurrentVsIndex(unsigned int index);
 	void setCurrentFsIndex(unsigned int index);
 	std::vector<const char*> getNames(GLenum type);
+
+	bool hasMVP();
 	ShaderProgram* getShaderProgram();
 
 	private:

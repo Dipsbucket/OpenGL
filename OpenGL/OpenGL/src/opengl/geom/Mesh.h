@@ -1,13 +1,9 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <iterator>
-#include <algorithm>
 #include <glad/glad.h>
 
 #include "glm/glm.hpp"
 #include <glm/gtx/string_cast.hpp>
-#include "../interfaces/hasName.h"
+#include "../core/Object3D.h"
 
 struct Vertex
 {
@@ -39,23 +35,23 @@ struct Texture
 	std::string path;
 };
 
-class Mesh :public hasName
+class Mesh :public Object3D
 {
 	public:
-	std::string name;
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
 	unsigned int verticesSize, indicesSize;
 	unsigned int vao;
 
-	Mesh();
-	Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-	~Mesh();
+	Mesh(unsigned int id, std::string name, Object3D* parent);
+	Mesh(unsigned int id, std::string name, Object3D* parent, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+	virtual ~Mesh();
 
-	std::string getName();
-	const char* getNameAsChar();
-	std::string toString();
+	void draw() override;
+
+	// Surcharges
+	std::string toString() override;
 
 	private:
 	unsigned int vbo, ebo;

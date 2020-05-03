@@ -21,4 +21,8 @@ namespace BufferConstants
 namespace ShaderConstants
 {
 	extern const std::string uColor;
+
+	extern const std::string uModel;
+	extern const std::string uView;
+	extern const std::string uProjection;
 }

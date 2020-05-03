@@ -1,9 +1,10 @@
 #include "Shader.h"
 
-Shader::Shader(const std::string& filePath, std::string name)
+Shader::Shader(const std::string& filePath, std::string name, ShaderType type)
 {
 	this->source = FileUtils::parseFile(filePath);
 	this->name = name;
+	this->type = type;
 }
 
 Shader::~Shader()
@@ -20,19 +21,4 @@ void Shader::compile(GLenum type)
 
 	// TODO JT : handle if error
 	ShaderUtils::printShaderErrors(this->id, GL_COMPILE_STATUS, type);
-}
-
-std::string Shader::getName()
-{
-	return this->name;
-}
-
-std::string Shader::toString()
-{
-	return this->getName();
-}
-
-const char* Shader::getNameAsChar()
-{
-	return this->name.c_str();
 }

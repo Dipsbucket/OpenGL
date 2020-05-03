@@ -1,18 +1,17 @@
 #pragma once
 #include <glad/glad.h>
-#include <string>
 #include <list>
-#include <vector>
-#include <iterator>
 #include <unordered_map>
-#include "glm/glm.hpp"
-#include "Shader.h"
-#include "utils/ShaderUtils.h"
 
-class ShaderProgram
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
+#include "utils/ShaderUtils.h"
+#include "../interfaces/hasId.h"
+
+class ShaderProgram :public hasId
 {
 	public:
-	unsigned int id;
 	std::unordered_map<std::string, int> uniformLocationCache;
 	ShaderProgram();
 	~ShaderProgram();
@@ -26,5 +25,6 @@ class ShaderProgram
 	void clear() const;
 
 	void setUniform4f(const std::string& name, glm::vec4& vec);
+	void setUniformMat4f(const std::string& name, glm::mat4& mat);
 	int getUniformLocation(const std::string& name);
 };

@@ -2,18 +2,12 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
 #include "Constants.h"
 
 #include "opengl/ui/ImGuiWindow.h"
-#include "opengl/Renderer.h"
-#include "opengl/ShaderLoader.h"
-#include "opengl/Shader.h"
-#include "opengl/ShaderProgram.h"
-
-#include "geom/MeshFactory.h"
+#include "opengl/core/Renderer.h"
+#include "opengl/events/EventManager.h"
+#include "opengl/geom/MeshFactory.h"
 
 #include "utils/StringUtils.h"
 
@@ -24,11 +18,14 @@
 int initOpenGL();
 void printOpenGLInfos();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void cursor_position_callback(GLFWwindow* window, double xPos, double yPos);
+void cursor_enter_callback(GLFWwindow* window, int entered);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 void processInput(GLFWwindow* window);
 void computeViewport(int width, int height);
 void refreshViewport(int width, int height);
 void render(GLFWwindow* window);
-void test();
 
 // =========================================================================================================
 // Variables
@@ -39,6 +36,12 @@ int g_width, g_height;
 
 ImGuiWindow guiWindow;
 double g_widthRatio;
+
+EventManager* eventManager;
+
+Mesh* scene;
+
+int g_mouseIn;
 
 // =========================================================================================================
 // Méthodes
@@ -72,6 +75,11 @@ int initOpenGL()
 
 	// Bind de la function gérant la redimension de la window
 	glfwSetFramebufferSizeCallback(g_window, framebuffer_size_callback);
+
+	// Bind de la souris
+	glfwSetCursorEnterCallback(g_window, cursor_enter_callback);
+	glfwSetMouseButtonCallback(g_window, mouse_button_callback);
+	glfwSetScrollCallback(g_window, scroll_callback);
 
 	// Charge glad: load all OpenGL function pointers
 	// A faire avant tout appel à une méthode OpenGL
@@ -112,6 +120,30 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	computeViewport(width, height);
 }
 
+void cursor_position_callback(GLFWwindow* window, double xPos, double yPos)
+{
+}
+
+void cursor_enter_callback(GLFWwindow* window, int entered)
+{
+	g_mouseIn = entered;
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+	{
+	}
+}
+
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+{
+	eventManager->manageScroll(yOffset);
+}
+
 void processInput(GLFWwindow* window)
 {
 	// ESC : Fermeture de la window
@@ -123,7 +155,7 @@ void processInput(GLFWwindow* window)
 
 void computeViewport(int width, int height)
 {
-	g_width = width - (width * g_widthRatio);
+	g_width = width - (int)(width * g_widthRatio);
 	g_height = height;
 
 	refreshViewport(g_width, g_height);
@@ -136,17 +168,33 @@ void refreshViewport(int width, int height)
 
 void render(GLFWwindow* window)
 {
+	// Création de la scène
+	scene = new Mesh(0, "Scene", nullptr);
+
 	// Création de l'objet à rendre
-	Mesh triangle = MeshFactory::buildTriangle();
+	Mesh triangle = MeshFactory::buildTriangle(1);
+	Mesh quad = MeshFactory::buildQuad(2);
+	Mesh tetrahedron = MeshFactory::buildTetrahedron(3);
 
-	ShaderLoader shaderLoader;
-	shaderLoader.loadShaders();
-	shaderLoader.compileShaders();
+	triangle.addChild(&quad);
+	// Ajout des éléments de la scène
+	scene->addChild(&triangle);
+	scene->addChild(&tetrahedron);
+	//scene->addChild(&quad);
 
-	// Déclaration du renderer
+	eventManager = new EventManager();
+	eventManager->createCameraManager(g_width, g_height);
+	eventManager->createShaderManager();
+	eventManager->scene = scene;
+
+	// TODO JT : TEST
+	// SET OBJECT MODEL MATRIX
+
+	// Création du renderer
 	Renderer renderer;
 
 	// Propriétés de rendue
+	glEnable(GL_DEPTH_TEST);
 	glPointSize(3.0);
 	glLineWidth(2.0);
 
@@ -159,56 +207,15 @@ void render(GLFWwindow* window)
 		processInput(window);
 
 		renderer.clearZone(0, 0, g_width, g_height);
-		renderer.draw(triangle);
+		renderer.draw(scene);
 
 		// Creation de la windowGui
-		guiWindow.createToolbox(shaderLoader);
+		guiWindow.createToolbox(eventManager);
 		//guiWindow.createDefault();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-}
-
-void test()
-{
-	// Viewport et Scissor
-	//glViewport(0, 0, OpenGLConstants::SCREEN_WIDTH - guiWindow.width, OpenGLConstants::SCREEN_HEIGHT);
-	//glScissor(0, 0, OpenGLConstants::SCREEN_WIDTH - guiWindow.width, OpenGLConstants::SCREEN_HEIGHT);
-	//glEnable(GL_SCISSOR_TEST);
-
-	// Array to vector
-	//std::vector<float> vertices;
-	//vertices.assign(array_vertices, array_vertices + size_vertices);
-	//std::vector<unsigned int> indexes;
-	//indexes.assign(array_indexes, array_indexes + size_indexes);
-
-	// Print le contenu d'un vecteur glm
-	//std::cout << "********* color *********" << std::endl;
-	//std::cout << "vec4 color : " + glm::to_string(color) << std::endl;
-
-	// Creation de la windowGui
-	// Après render.draw
-	//guiWindow.createDefault();
-
-	// Post rendering loop
-	//vbo.~VertexBuffer();
-	//sp.~ShaderProgram();
-
-	//vs.~Shader();
-	//fs.~Shader();
-
-	// (*iter)
-	//if (!shaders.empty())
-	//{
-	//	for (std::vector<Shader*>::iterator iterator = shaders.begin(); iterator != shaders.end(); iterator++)
-	//	{
-	//		glDetachShader(this->id, (*iterator)->id);
-	//		glDeleteShader((*iterator)->id);
-	//	}
-
-	//	this->unbind();
-	//}
 }
 
 int main()

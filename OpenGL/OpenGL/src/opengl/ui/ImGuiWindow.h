@@ -4,7 +4,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include "../ShaderLoader.h"
+#include "../events/EventManager.h"
 
 class ImGuiWindow
 {
@@ -22,11 +22,21 @@ class ImGuiWindow
 	void newFrame();
 	void render();
 	void createDefault();
-	void createToolbox(ShaderLoader shaderLoader);
+	void createToolbox(EventManager* eventManager);
 
 	private:
 	ImVec4 clear_color;
-	int vs_selectedItem;
-	int fs_selectedItem;
-	int selectedRenderingMode, previousRenderingMode;
+
+	int selectedVs, selectedFs;
+	bool depthTest;
+	int selectedRenderingMode;
+	int selectedCamera;
+
+	void initConfig();
+	void createSceneMenu(EventManager* eventManager);
+	void createOpenGLMenu(EventManager* eventManager);
+	void createShaderMenu(EventManager* eventManager);
+	void createCameraMenu(EventManager* eventManager);
+
+	void createSceneGraphTree(ImGuiTreeNodeFlags baseFlags, std::vector<Object3D*> children);
 };

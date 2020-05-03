@@ -22,4 +22,8 @@ namespace BufferConstants
 namespace ShaderConstants
 {
 	extern const std::string uColor{ "u_Color" };
+
+	extern const std::string uModel{ "u_Model" };
+	extern const std::string uView{ "u_View" };
+	extern const std::string uProjection{ "u_Projection" };
 }

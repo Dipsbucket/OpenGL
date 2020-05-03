@@ -17,11 +17,9 @@ ImGuiWindow::ImGuiWindow()
 	this->height = 0;
 	this->x = 0;
 	this->y = 0;
-	this->ratio = (double)1 / (double)3;
-	this->vs_selectedItem = 0;
-	this->fs_selectedItem = 0;
-	this->selectedRenderingMode = 0;
-	this->previousRenderingMode = 0;
+
+	// Initialisation
+	this->initConfig();
 }
 
 ImGuiWindow::ImGuiWindow(GLFWwindow* window, const char* glslVersion, int width, int height)
@@ -43,11 +41,7 @@ ImGuiWindow::ImGuiWindow(GLFWwindow* window, const char* glslVersion, int width,
 	this->clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	// Initialisation
-	this->ratio = (double)1 / (double)3;
-	this->vs_selectedItem = 0;
-	this->fs_selectedItem = 0;
-	this->selectedRenderingMode = 0;
-	this->previousRenderingMode = 0;
+	this->initConfig();
 
 	this->refresh(width, height);
 }
@@ -130,7 +124,7 @@ void ImGuiWindow::createDefault()
 	// 3. Show another simple window.
 	if (show_another_window)
 	{
-		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		ImGui::Begin("Another Window", &show_another_window);
 		ImGui::Text("Hello from another window!");
 		if (ImGui::Button("Close Me"))
 		{
@@ -142,7 +136,7 @@ void ImGuiWindow::createDefault()
 	this->render();
 }
 
-void ImGuiWindow::createToolbox(ShaderLoader shaderLoader)
+void ImGuiWindow::createToolbox(EventManager* eventManager)
 {
 	// Positionnement et dimensions
 	ImGui::SetNextWindowPos(ImVec2((float)this->x, (float)this->y), ImGuiCond_Always);
@@ -151,60 +145,112 @@ void ImGuiWindow::createToolbox(ShaderLoader shaderLoader)
 	// render your GUI
 	ImGui::Begin("Toolbox");
 
-	if (ImGui::CollapsingHeader("Rendering Mode"))
-	{
-		ImGui::Text("Select rendering mode :");
-
-		const char* renderingModes[]{ "Full", "Wireframe", "Points" };
-		ImGui::Combo("Rendering_Mode", &this->selectedRenderingMode, renderingModes, IM_ARRAYSIZE(renderingModes));
-
-		// TODO JT : Améliorer
-		if (this->selectedRenderingMode != this->previousRenderingMode)
-		{
-			switch (this->selectedRenderingMode)
-			{
-				case 0:
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-					break;
-				case 1:
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					break;
-				case 2:
-					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-					break;
-				default:
-					break;
-			}
-
-			this->previousRenderingMode = this->selectedRenderingMode;
-		}
-	}
-
-	if (ImGui::CollapsingHeader("Shaders"))
-	{
-		ImGui::Text("Load & Compile Shaders :");
-
-		bool compileShader = false;
-
-		std::vector<const char*> vs_shaders = shaderLoader.getNames(GL_VERTEX_SHADER);
-		std::vector<const char*> fs_shaders = shaderLoader.getNames(GL_FRAGMENT_SHADER);
-
-		ImGui::Combo("Vertex Shader", &this->vs_selectedItem, vs_shaders.data(), vs_shaders.size());
-		ImGui::Combo("Fragment Shader", &this->fs_selectedItem, fs_shaders.data(), fs_shaders.size());
-
-		if (ImGui::Button("Compile"))
-		{
-			compileShader = true;
-
-			shaderLoader.getShaderProgram()->clear();
-			shaderLoader.setCurrentVsIndex(this->vs_selectedItem);
-			shaderLoader.setCurrentFsIndex(this->fs_selectedItem);
-			shaderLoader.compileShaders();
-		}
-	}
+	this->createOpenGLMenu(eventManager);
+	this->createShaderMenu(eventManager);
+	this->createSceneMenu(eventManager);
+	this->createCameraMenu(eventManager);
 
 	ImGui::End();
 
 	// Render dear imgui into screen
 	this->render();
+}
+
+void ImGuiWindow::initConfig()
+{
+	this->ratio = (double)1 / (double)3;
+
+	this->selectedVs = 0;
+	this->selectedFs = 0;
+
+	this->depthTest = true;
+	this->selectedRenderingMode = 0;
+
+	this->selectedCamera = 0;
+}
+
+void ImGuiWindow::createSceneMenu(EventManager* eventManager)
+{
+	if (ImGui::CollapsingHeader("Scene Graph"))
+	{
+		ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+		if (ImGui::TreeNode("Scene"))
+		{
+			this->createSceneGraphTree(baseFlags, eventManager->scene->children);
+			ImGui::TreePop();
+		}
+	}
+}
+
+void ImGuiWindow::createOpenGLMenu(EventManager* eventManager)
+{
+	if (ImGui::CollapsingHeader("OpenGL"))
+	{
+		ImGui::Text("Select rendering mode :");
+
+		const char* renderingModes[]{ "Full", "Wireframe", "Points" };
+		ImGui::Combo("Rendering_Mode", &this->selectedRenderingMode, renderingModes, IM_ARRAYSIZE(renderingModes));
+		eventManager->switchRenderingMode(this->selectedRenderingMode);
+
+		ImGui::Checkbox("Depth Test", &this->depthTest);
+		eventManager->switchDepthTest(this->depthTest);
+	}
+}
+
+void ImGuiWindow::createShaderMenu(EventManager* eventManager)
+{
+	if (ImGui::CollapsingHeader("Shaders"))
+	{
+		ImGui::Text("Load & Compile Shaders :");
+
+		std::vector<const char*> vs_shaders = eventManager->shaderManager->getNames(GL_VERTEX_SHADER);
+		std::vector<const char*> fs_shaders = eventManager->shaderManager->getNames(GL_FRAGMENT_SHADER);
+
+		ImGui::Combo("Vertex Shader", &this->selectedVs, vs_shaders.data(), vs_shaders.size());
+		ImGui::Combo("Fragment Shader", &this->selectedFs, fs_shaders.data(), fs_shaders.size());
+
+		if (ImGui::Button("Compile"))
+		{
+			eventManager->switchShaders(this->selectedVs, this->selectedFs);
+		}
+	}
+}
+
+void ImGuiWindow::createCameraMenu(EventManager* eventManager)
+{
+	if (eventManager->shaderManager->hasMVP())
+	{
+		if (ImGui::CollapsingHeader("Camera"))
+		{
+			std::vector<const char*> cameras = eventManager->cameraManager->getNames();
+			ImGui::Combo("Cameras", &this->selectedCamera, cameras.data(), cameras.size());
+			eventManager->switchCamera(this->selectedCamera);
+
+			// Position
+			ImGui::InputFloat3("Position", glm::value_ptr(eventManager->cameraManager->getCurrentCamera()->position));
+		}
+	}
+}
+
+void ImGuiWindow::createSceneGraphTree(ImGuiTreeNodeFlags baseFlags, std::vector<Object3D*> children)
+{
+	ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;;
+	ImGuiTreeNodeFlags currentFlag;
+
+	bool nodeOpen = false;
+	for (std::vector<Object3D*>::iterator iterator = children.begin(); iterator != children.end(); iterator++)
+	{
+		currentFlag = (*iterator)->hasChildren() ? baseFlags : leafFlags;
+		nodeOpen = ImGui::TreeNodeEx((void*)(intptr_t)(*iterator)->getId(), currentFlag, (*iterator)->getNameAsChar(), (*iterator)->getId());
+
+		if (nodeOpen)
+		{
+			if ((*iterator)->hasChildren())
+			{
+				this->createSceneGraphTree(baseFlags, (*iterator)->children);
+				ImGui::TreePop();
+			}
+		}
+	}
 }

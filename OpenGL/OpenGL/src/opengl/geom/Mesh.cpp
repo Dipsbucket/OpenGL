@@ -1,13 +1,12 @@
 #include "Mesh.h"
 
-Mesh::Mesh()
+Mesh::Mesh(unsigned int id, std::string name, Object3D* parent) : Object3D(id, name, parent)
 {
-	this->name = "Unknown";
+	// Ne pas utiliser
 }
 
-Mesh::Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+Mesh::Mesh(unsigned int id, std::string name, Object3D* parent, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : Object3D(id, name, parent)
 {
-	this->name = !name.empty() ? name : "Unknown";
 	this->vertices = vertices;
 	this->verticesSize = vertices.size() * sizeof(float);
 	this->indices = indices;
@@ -18,19 +17,27 @@ Mesh::Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned 
 
 Mesh::~Mesh()
 {
-	this->name.clear();
-	this->vertices.clear();
-	this->indices.clear();
 }
 
-std::string Mesh::getName()
+void Mesh::draw()
 {
-	return this->name;
-}
+	// Dessine avec VertexBuffer sans IndexBuffer
+	// 1. Mode de dessin
+	// 2. A partir de quel vertex on veut dessiner : offset possible
+	// 3. Nombre de vertex a dessiner
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
-const char* Mesh::getNameAsChar()
-{
-	return this->name.c_str();
+	// Dessine avec VertexBuffer et IndexBuffer
+	// 1. Mode de dessin
+	// 2. Nombre d'indice à dessiner
+	// 3. Type de données dans l'IndexBuffer
+	// 4. Pointeur vers l'IndexBuffer. No need car bind dans le constructeur
+	if (!this->isRootNode())
+	{
+		glBindVertexArray(this->vao);
+		glDrawElements(GL_TRIANGLES, this->indicesSize, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
 }
 
 std::string Mesh::toString()

@@ -1,30 +1,32 @@
-#include "ShaderLoader.h"
+#include "ShaderManager.h"
 #include "../Constants.cpp"
 
-ShaderLoader::ShaderLoader()
+ShaderManager::ShaderManager()
 {
 	this->current_vs_index = 0;
 	this->current_fs_index = 0;
 }
 
-ShaderLoader::~ShaderLoader()
+ShaderManager::~ShaderManager()
 {
 	// TODO JT : Clear ressources
 }
 
-void ShaderLoader::loadShaders()
+void ShaderManager::loadShaders()
 {
 	// Création des vertex shaders par défaut
-	Shader* default_vs = new Shader("res/shaders/vertex/default.vert", "Default");
+	Shader* default_vs = new Shader("res/shaders/vertex/default.vert", "Default", ShaderType::NONE);
+	Shader* defaultProjection_vs = new Shader("res/shaders/vertex/defaultProjection.vert", "Default Projection", ShaderType::MVP);
 	this->addShader(default_vs, GL_VERTEX_SHADER);
+	this->addShader(defaultProjection_vs, GL_VERTEX_SHADER);
 
-	Shader* default_fs = new Shader("res/shaders/fragment/default.frag", "Default");
-	Shader* colorInterpolation_fs = new Shader("res/shaders/fragment/colorInterpolation.frag", "Color Interpolation");
+	Shader* default_fs = new Shader("res/shaders/fragment/default.frag", "Default", ShaderType::NONE);
+	Shader* colorInterpolation_fs = new Shader("res/shaders/fragment/colorInterpolation.frag", "Color Interpolation", ShaderType::COLOR_INTERPOLATION);
 	this->addShader(default_fs, GL_FRAGMENT_SHADER);
 	this->addShader(colorInterpolation_fs, GL_FRAGMENT_SHADER);
 }
 
-void ShaderLoader::compileShaders()
+void ShaderManager::compileShaders()
 {
 	// Création du Shader program et assignation des shaders
 	Shader* vs = this->vertexShaderCache.at(this->current_vs_index);
@@ -48,28 +50,37 @@ void ShaderLoader::compileShaders()
 	this->setUniforms();
 }
 
-void ShaderLoader::setUniforms()
+void ShaderManager::setUniforms()
 {
 	// Pour set l'uniform le shaderProgram doit etre bind
-	// TODO JT : améliorer gestion uniform
-	if (this->current_fs_index == 0)
+	if ((*this->fragmentShaderCache.at(this->current_fs_index)).type == ShaderType::NONE)
 	{
 		glm::vec4 color(0.9f, 0.0f, 0.0f, 1.0f);
 		this->shaderProgram->setUniform4f(ShaderConstants::uColor, color);
 	}
 }
 
-void ShaderLoader::setCurrentVsIndex(unsigned int index)
+void ShaderManager::setMVPUniforms(glm::mat4& view, glm::mat4& projection)
+{
+	// Pour set l'uniform le shaderProgram doit etre bind
+	if ((*this->vertexShaderCache.at(this->current_vs_index)).type == ShaderType::MVP)
+	{
+		this->shaderProgram->setUniformMat4f(ShaderConstants::uView, view);
+		this->shaderProgram->setUniformMat4f(ShaderConstants::uProjection, projection);
+	}
+}
+
+void ShaderManager::setCurrentVsIndex(unsigned int index)
 {
 	this->current_vs_index = index;
 }
 
-void ShaderLoader::setCurrentFsIndex(unsigned int index)
+void ShaderManager::setCurrentFsIndex(unsigned int index)
 {
 	this->current_fs_index = index;
 }
 
-std::vector<const char*> ShaderLoader::getNames(GLenum type)
+std::vector<const char*> ShaderManager::getNames(GLenum type)
 {
 	std::vector<const char*> res;
 
@@ -94,12 +105,17 @@ std::vector<const char*> ShaderLoader::getNames(GLenum type)
 	return res;
 }
 
-ShaderProgram* ShaderLoader::getShaderProgram()
+bool ShaderManager::hasMVP()
+{
+	return (*this->vertexShaderCache.at(this->current_vs_index)).type == ShaderType::MVP;
+}
+
+ShaderProgram* ShaderManager::getShaderProgram()
 {
 	return this->shaderProgram;
 }
 
-void ShaderLoader::addShader(Shader* shader, GLenum type)
+void ShaderManager::addShader(Shader* shader, GLenum type)
 {
 	unsigned int size;
 
