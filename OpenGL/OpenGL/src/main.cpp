@@ -39,8 +39,6 @@ double g_widthRatio;
 
 EventManager* eventManager;
 
-Mesh* scene;
-
 int g_mouseIn;
 
 // =========================================================================================================
@@ -168,27 +166,24 @@ void refreshViewport(int width, int height)
 
 void render(GLFWwindow* window)
 {
-	// Création de la scène
-	scene = new Mesh(0, "Scene", nullptr);
+	eventManager = new EventManager();
+	eventManager->createCameraManager(g_width, g_height);
+	eventManager->createShaderManager();
+	eventManager->createSceneManager();
 
 	// Création de l'objet à rendre
 	Mesh triangle = MeshFactory::buildTriangle(1);
 	Mesh quad = MeshFactory::buildQuad(2);
 	Mesh tetrahedron = MeshFactory::buildTetrahedron(3);
 
-	triangle.addChild(&quad);
+	//triangle.translate(glm::vec3(1.0f, 0.0f, 0.0f));
+	//glm::quat rotation = glm::quat(glm::angleAxis(glm::radians(60.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+	//triangle.setQuaternion(rotation);
+
 	// Ajout des éléments de la scène
-	scene->addChild(&triangle);
-	scene->addChild(&tetrahedron);
-	//scene->addChild(&quad);
-
-	eventManager = new EventManager();
-	eventManager->createCameraManager(g_width, g_height);
-	eventManager->createShaderManager();
-	eventManager->scene = scene;
-
-	// TODO JT : TEST
-	// SET OBJECT MODEL MATRIX
+	eventManager->sceneManager->addObject(0, &triangle);
+	eventManager->sceneManager->addObject(1, &quad);
+	//eventManager->sceneManager->addObject(0, &tetrahedron);
 
 	// Création du renderer
 	Renderer renderer;
@@ -207,7 +202,7 @@ void render(GLFWwindow* window)
 		processInput(window);
 
 		renderer.clearZone(0, 0, g_width, g_height);
-		renderer.draw(scene);
+		renderer.draw(eventManager, eventManager->sceneManager->scene);
 
 		// Creation de la windowGui
 		guiWindow.createToolbox(eventManager);

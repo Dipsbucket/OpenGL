@@ -21,13 +21,18 @@ void EventManager::createShaderManager()
 	this->shaderManager = new ShaderManager();
 	this->shaderManager->loadShaders();
 	this->shaderManager->compileShaders();
-	this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
+	this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->model, cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
 }
 
 void EventManager::createCameraManager(int width, int height)
 {
 	// Création des caméras
 	this->cameraManager = new CameraManager(width, height);
+}
+
+void EventManager::createSceneManager()
+{
+	this->sceneManager = new SceneManager();
 }
 
 void EventManager::switchRenderingMode(int rmIndex)
@@ -76,7 +81,7 @@ void EventManager::switchShaders(int vsIndex, int fsIndex)
 	shaderManager->setCurrentVsIndex(vsIndex);
 	shaderManager->setCurrentFsIndex(fsIndex);
 	shaderManager->compileShaders();
-	this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
+	this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->model, cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
 }
 
 void EventManager::switchCamera(int cameraIndex)
@@ -84,7 +89,7 @@ void EventManager::switchCamera(int cameraIndex)
 	if (cameraIndex != this->currentCameraIndex)
 	{
 		cameraManager->setCurrentCamera(cameraIndex);
-		this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
+		this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->model, cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
 
 		this->currentCameraIndex = cameraIndex;
 	}
@@ -95,6 +100,14 @@ void EventManager::manageScroll(double offset)
 	if (shaderManager->hasMVP())
 	{
 		cameraManager->getCurrentCamera()->zoom(offset > 0);
-		this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
+		this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->model, cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
+	}
+}
+
+void EventManager::translateObject(unsigned int objectIndex, glm::vec3 translation)
+{
+	if (glm::length(translation) > 0)
+	{
+		this->sceneManager->getObject(objectIndex)->translate(translation);
 	}
 }

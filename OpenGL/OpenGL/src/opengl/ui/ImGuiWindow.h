@@ -31,9 +31,12 @@ class ImGuiWindow
 	bool depthTest;
 	int selectedRenderingMode;
 	int selectedCamera;
+	int selectedObject;
+	glm::vec3 translation;
 
 	void initConfig();
 	void createSceneMenu(EventManager* eventManager);
+	void createTransformMenu(EventManager* eventManager);
 	void createOpenGLMenu(EventManager* eventManager);
 	void createShaderMenu(EventManager* eventManager);
 	void createCameraMenu(EventManager* eventManager);

@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(unsigned int id, std::string name, Object3D* parent, CameraType type, float width, float height)
+Camera::Camera(unsigned int id, std::string name, Object3D* parent, CameraType type, float width, float height) : Object3D(id, name, parent)
 {
 	this->vWidth = width;
 	this->vHeight = height;
@@ -93,7 +93,18 @@ void Camera::zoom(bool in)
 
 void Camera::zoomOrthographic(bool in)
 {
-	this->right += in ? 1.0f : -1.0f;
+	if (in)
+	{
+		if (this->right - 1 > 0)
+		{
+			this->right--;
+		}
+	}
+	else
+	{
+		this->right++;
+	}
+
 	this->left = -this->right;
 	this->top = this->right * this->aspectRatio;
 	this->bottom = -this->top;
@@ -103,11 +114,18 @@ void Camera::zoomOrthographic(bool in)
 void Camera::zoomPerspective(bool in)
 {
 	glm::vec3 pNorm = glm::normalize(glm::vec3(this->position));
-	float length = in ? glm::length(this->position - pNorm) : glm::length(this->position + pNorm);
 
-	if (!in || (in && length != 0))
+	if (in)
 	{
-		this->position = this->position - pNorm;
+		if (glm::length(this->position - pNorm) > 0)
+		{
+			this->position = this->position - pNorm;
+			this->computeView();
+		}
+	}
+	else
+	{
+		this->position = this->position + pNorm;
 		this->computeView();
 	}
 }

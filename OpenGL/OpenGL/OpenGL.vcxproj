@@ -161,8 +161,10 @@
     <ClCompile Include="src\Constants.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\opengl\core\Renderer.cpp" />
+    <ClCompile Include="src\opengl\core\Transform.cpp" />
     <ClCompile Include="src\opengl\events\CameraManager.cpp" />
     <ClCompile Include="src\opengl\events\EventManager.cpp" />
+    <ClCompile Include="src\opengl\events\SceneManager.cpp" />
     <ClCompile Include="src\opengl\events\ShaderManager.cpp" />
     <ClCompile Include="src\opengl\geom\Mesh.cpp" />
     <ClCompile Include="src\opengl\geom\MeshFactory.cpp" />
@@ -171,6 +173,7 @@
     <ClCompile Include="src\opengl\ui\ImGuiWindow.cpp" />
     <ClCompile Include="src\opengl\utils\ShaderUtils.cpp" />
     <ClCompile Include="src\utils\FileUtils.cpp" />
+    <ClCompile Include="src\utils\StringUtils.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
@@ -186,8 +189,10 @@
     <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\interfaces\hasName.h" />
     <ClInclude Include="src\opengl\core\Renderer.h" />
+    <ClInclude Include="src\opengl\core\Transform.h" />
     <ClInclude Include="src\opengl\events\CameraManager.h" />
     <ClInclude Include="src\opengl\events\EventManager.h" />
+    <ClInclude Include="src\opengl\events\SceneManager.h" />
     <ClInclude Include="src\opengl\events\ShaderManager.h" />
     <ClInclude Include="src\opengl\geom\Mesh.h" />
     <ClInclude Include="src\opengl\geom\MeshFactory.h" />

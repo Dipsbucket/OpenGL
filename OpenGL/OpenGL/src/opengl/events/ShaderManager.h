@@ -1,15 +1,7 @@
 #pragma once
-//#include <glad/glad.h>
-//#include <string>
-//#include <iterator>
-//#include <vector>
-//#include <unordered_map>
-//
-//#include "glm/glm.hpp"
-//#include "glm/gtc/matrix_transform.hpp"
+
 #include "../ShaderProgram.h"
 #include "../Shader.h"
-//#include "Camera.h"
 
 class ShaderManager
 {
@@ -21,7 +13,8 @@ class ShaderManager
 	void loadShaders();
 	void compileShaders();
 	void setUniforms();
-	void setMVPUniforms(glm::mat4& view, glm::mat4& projection);
+	void setMVPUniforms(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
+	void setModelUniform(glm::mat4& model);
 
 	void setCurrentVsIndex(unsigned int index);
 	void setCurrentFsIndex(unsigned int index);

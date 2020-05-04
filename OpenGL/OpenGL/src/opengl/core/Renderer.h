@@ -3,7 +3,7 @@
 #include <vector>
 #include <glad/glad.h>
 
-#include "../core/Object3D.h"
+#include "../events/EventManager.h"
 
 class Renderer
 {
@@ -13,5 +13,5 @@ class Renderer
 
 	void clear() const;
 	void clearZone(unsigned int x, unsigned int y, unsigned int width, unsigned int height) const;
-	void draw(Object3D* rootNode);
+	void draw(EventManager* eventManager, Object3D* node);
 };

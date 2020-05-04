@@ -4,9 +4,14 @@
 #include <vector>
 #include <sstream>
 
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/string_cast.hpp"
+
 class StringUtils
 {
 	public:
+	static std::string mat4toString(glm::mat4& mat);
 	template <class T> static std::string toString(std::vector<T> value);
 	template <class T> static T parseString(std::string value);
 };

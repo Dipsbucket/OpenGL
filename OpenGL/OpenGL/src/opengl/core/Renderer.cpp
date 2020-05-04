@@ -25,12 +25,16 @@ void Renderer::clearZone(unsigned int x, unsigned int y, unsigned int width, uns
 	this->clear();
 }
 
-void Renderer::draw(Object3D* rootNode)
+void Renderer::draw(EventManager* eventManager, Object3D* node)
 {
-	rootNode->draw();
-
-	for (std::vector<Object3D*>::iterator iterator = rootNode->children.begin(); iterator != rootNode->children.end(); ++iterator)
+	if (!node->isRootNode())
 	{
-		this->draw((*iterator));
+		eventManager->shaderManager->setModelUniform(node->model);
+	}
+	node->draw();
+
+	for (std::vector<Object3D*>::iterator iterator = node->children.begin(); iterator != node->children.end(); ++iterator)
+	{
+		this->draw(eventManager, (*iterator));
 	}
 }

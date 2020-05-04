@@ -60,13 +60,23 @@ void ShaderManager::setUniforms()
 	}
 }
 
-void ShaderManager::setMVPUniforms(glm::mat4& view, glm::mat4& projection)
+void ShaderManager::setMVPUniforms(glm::mat4& model, glm::mat4& view, glm::mat4& projection)
 {
 	// Pour set l'uniform le shaderProgram doit etre bind
 	if ((*this->vertexShaderCache.at(this->current_vs_index)).type == ShaderType::MVP)
 	{
+		this->setModelUniform(model);
 		this->shaderProgram->setUniformMat4f(ShaderConstants::uView, view);
 		this->shaderProgram->setUniformMat4f(ShaderConstants::uProjection, projection);
+	}
+}
+
+void ShaderManager::setModelUniform(glm::mat4& model)
+{
+	// Pour set l'uniform le shaderProgram doit etre bind
+	if ((*this->vertexShaderCache.at(this->current_vs_index)).type == ShaderType::MVP)
+	{
+		this->shaderProgram->setUniformMat4f(ShaderConstants::uModel, model);
 	}
 }
 

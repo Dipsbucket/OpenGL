@@ -145,10 +145,30 @@ void ImGuiWindow::createToolbox(EventManager* eventManager)
 	// render your GUI
 	ImGui::Begin("Toolbox");
 
-	this->createOpenGLMenu(eventManager);
-	this->createShaderMenu(eventManager);
-	this->createSceneMenu(eventManager);
-	this->createCameraMenu(eventManager);
+	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+	if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
+	{
+		if (ImGui::BeginTabItem("Rendering"))
+		{
+			this->createOpenGLMenu(eventManager);
+			this->createShaderMenu(eventManager);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Scene"))
+		{
+			this->createSceneMenu(eventManager);
+			this->createTransformMenu(eventManager);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Camera"))
+		{
+			this->createCameraMenu(eventManager);
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
+	}
+	ImGui::Separator();
 
 	ImGui::End();
 
@@ -167,6 +187,9 @@ void ImGuiWindow::initConfig()
 	this->selectedRenderingMode = 0;
 
 	this->selectedCamera = 0;
+	this->selectedObject = 0;
+
+	this->translation = glm::vec3(0.0f);
 }
 
 void ImGuiWindow::createSceneMenu(EventManager* eventManager)
@@ -177,8 +200,59 @@ void ImGuiWindow::createSceneMenu(EventManager* eventManager)
 
 		if (ImGui::TreeNode("Scene"))
 		{
-			this->createSceneGraphTree(baseFlags, eventManager->scene->children);
+			this->createSceneGraphTree(baseFlags, eventManager->sceneManager->scene->children);
 			ImGui::TreePop();
+		}
+	}
+}
+
+void ImGuiWindow::createTransformMenu(EventManager* eventManager)
+{
+	if (eventManager->shaderManager->hasMVP())
+	{
+		if (ImGui::CollapsingHeader("Transform"))
+		{
+			std::vector<const char*> object = eventManager->sceneManager->getNames();
+			ImGui::Combo("Object", &this->selectedObject, object.data(), object.size());
+
+			glm::vec3 position = eventManager->sceneManager->getObject(this->selectedObject)->computePosition();
+			ImGui::InputFloat3("Position", glm::value_ptr(position));
+
+			ImGui::SliderFloat3("", glm::value_ptr(this->translation), -5.0f, 5.0f);
+			ImGui::SameLine();
+			if (ImGui::Button("Translate"))
+			{
+				eventManager->translateObject(this->selectedObject, this->translation);
+				this->translation = glm::vec3(0.0f);
+			}
+
+			if (ImGui::Button("Translation"))
+			{
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Rotation"))
+			{
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Scale"))
+			{
+			}
+			ImGui::SameLine();
+			ImGui::Text(": Undo");
+
+			if (ImGui::Button("Translation"))
+			{
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Rotation"))
+			{
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Scale"))
+			{
+			}
+			ImGui::SameLine();
+			ImGui::Text(": Reset");
 		}
 	}
 }
