@@ -16,4 +16,7 @@ class SceneManager
 	Object3D* getObject(unsigned int index);
 
 	void addObject(unsigned int parentIndex, Object3D* object);
+	void saveTransforms();
+	void clearTransform(unsigned int id);
+	void clearTransforms();
 };

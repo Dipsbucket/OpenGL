@@ -4,20 +4,37 @@
 #include <vector>
 #include <sstream>
 
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/string_cast.hpp"
-
 class StringUtils
 {
 	public:
-	static std::string mat4toString(glm::mat4& mat);
-	template <class T> static std::string toString(std::vector<T> value);
+	template <class T> static std::string array2dToString(T** arrayPointer);
+	template <class T> static std::string vecToString(std::vector<T> value);
 	template <class T> static T parseString(std::string value);
 };
 
 template<class T>
-inline std::string StringUtils::toString(std::vector<T> value)
+inline std::string StringUtils::array2dToString(T** arrayPointer)
+{
+	std::string res = "";
+	for (int i = 0; i < 4; i++)
+	{
+		res.append("(" + std::to_string(i) + ") [");
+		for (int j = 0; j < 4; j++)
+		{
+			res.append(std::to_string(arrayPointer[i][j]));
+			if (j != 3)
+			{
+				res.append(", ");
+			}
+		}
+		res.append("]\n");
+	}
+
+	return res;
+}
+
+template<class T>
+inline std::string StringUtils::vecToString(std::vector<T> value)
 {
 	std::string res("Empty vector");
 	if (!value.empty())

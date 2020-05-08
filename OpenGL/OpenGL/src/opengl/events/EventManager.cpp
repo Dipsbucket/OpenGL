@@ -8,6 +8,9 @@ EventManager::EventManager()
 
 	// Camera
 	this->currentCameraIndex = 0;
+
+	// Object
+	this->currentObject = 0;
 }
 
 EventManager::~EventManager()
@@ -95,6 +98,14 @@ void EventManager::switchCamera(int cameraIndex)
 	}
 }
 
+void EventManager::switchObject(int objectIndex)
+{
+	if (this->currentObject != objectIndex)
+	{
+		this->currentObject = objectIndex;
+	}
+}
+
 void EventManager::manageScroll(double offset)
 {
 	if (shaderManager->hasMVP())
@@ -104,10 +115,33 @@ void EventManager::manageScroll(double offset)
 	}
 }
 
-void EventManager::translateObject(unsigned int objectIndex, glm::vec3 translation)
+void EventManager::translateObject(unsigned int objectIndex, glm::vec3 translation, bool reset)
 {
 	if (glm::length(translation) > 0)
 	{
-		this->sceneManager->getObject(objectIndex)->translate(translation);
+		this->sceneManager->getObject(objectIndex)->translate(translation, reset);
 	}
+}
+
+void EventManager::rotateObject(unsigned int objectIndex, glm::vec3 rotation)
+{
+	if (glm::length(rotation) > 0)
+	{
+		this->sceneManager->getObject(objectIndex)->rotate(rotation);
+	}
+}
+
+void EventManager::saveTransforms()
+{
+	this->sceneManager->saveTransforms();
+}
+
+void EventManager::clearTransform(unsigned int id)
+{
+	this->sceneManager->clearTransform(id);
+}
+
+void EventManager::clearTransforms()
+{
+	this->sceneManager->clearTransforms();
 }

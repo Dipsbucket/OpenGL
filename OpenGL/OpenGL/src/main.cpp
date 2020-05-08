@@ -174,7 +174,7 @@ void render(GLFWwindow* window)
 	// Création de l'objet à rendre
 	Mesh triangle = MeshFactory::buildTriangle(1);
 	Mesh quad = MeshFactory::buildQuad(2);
-	Mesh tetrahedron = MeshFactory::buildTetrahedron(3);
+	//Mesh tetrahedron = MeshFactory::buildTetrahedron(3);
 
 	//triangle.translate(glm::vec3(1.0f, 0.0f, 0.0f));
 	//glm::quat rotation = glm::quat(glm::angleAxis(glm::radians(60.0f), glm::vec3(0.0f, 1.0f, 0.0f)));

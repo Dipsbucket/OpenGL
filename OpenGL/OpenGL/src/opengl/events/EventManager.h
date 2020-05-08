@@ -10,6 +10,8 @@ class EventManager
 	CameraManager* cameraManager;
 	SceneManager* sceneManager;
 
+	int currentObject;
+
 	EventManager();
 	~EventManager();
 
@@ -22,8 +24,13 @@ class EventManager
 	void switchDepthTest(bool enable);
 	void switchShaders(int vsIndex, int fsIndex);
 	void switchCamera(int cameraIndex);
+	void switchObject(int objectIndex);
 	void manageScroll(double offset);
-	void translateObject(unsigned int objectIndex, glm::vec3 translation);
+	void translateObject(unsigned int objectIndex, glm::vec3 translation, bool reset);
+	void rotateObject(unsigned int objectIndex, glm::vec3 rotation);
+	void saveTransforms();
+	void clearTransform(unsigned int id);
+	void clearTransforms();
 
 	private:
 	int currentRenderingMode, currentCameraIndex;

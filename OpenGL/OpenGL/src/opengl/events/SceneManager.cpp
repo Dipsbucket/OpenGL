@@ -33,3 +33,24 @@ void SceneManager::addObject(unsigned int parentIndex, Object3D* object)
 	(*this->objectCache.at(parentIndex)).addChild(object);
 	this->objectCache.insert({ object->getId(), object });
 }
+
+void SceneManager::saveTransforms()
+{
+	for (std::unordered_map<unsigned int, Object3D*>::iterator iterator = this->objectCache.begin(); iterator != this->objectCache.end(); ++iterator)
+	{
+		iterator->second->saveTransform();
+	}
+}
+
+void SceneManager::clearTransform(unsigned int id)
+{
+	this->objectCache.at(id)->clearTransform();
+}
+
+void SceneManager::clearTransforms()
+{
+	for (std::unordered_map<unsigned int, Object3D*>::iterator iterator = this->objectCache.begin(); iterator != this->objectCache.end(); ++iterator)
+	{
+		iterator->second->clearTransform();
+	}
+}

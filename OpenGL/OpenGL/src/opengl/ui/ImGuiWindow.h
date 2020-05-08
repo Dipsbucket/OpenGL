@@ -33,6 +33,7 @@ class ImGuiWindow
 	int selectedCamera;
 	int selectedObject;
 	glm::vec3 translation;
+	glm::vec3 rotation;
 
 	void initConfig();
 	void createSceneMenu(EventManager* eventManager);

@@ -5,8 +5,11 @@ Transform::Transform()
 	// Initialisation matrice d'identité
 	this->transform = glm::mat4(1.0f);
 	this->translation = glm::mat4(1.0f);
+
+	this->orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	this->rotation = glm::mat4(1.0f);
-	this->scale = glm::mat4(1.0f);
+
+	this->modified = false;
 }
 
 Transform::~Transform()
@@ -15,54 +18,64 @@ Transform::~Transform()
 
 void Transform::computeTransform()
 {
-	// TODO JT : PARENT
-	this->transform = this->scale * this->rotation * this->translation;
+	// TODO JT : TEST
+	//this->transform = this->scale * this->rotation * this->translation;
+	this->transform = this->rotation * this->translation;
+
+	int size = this->transformationsCache.size();
+	if (size > 0)
+	{
+		glm::mat4 previousTransform = this->transformationsCache[size - 1];
+		this->transform = this->transform * previousTransform;
+	}
 }
 
-void Transform::addTranslation(glm::mat4& translation)
+void Transform::translate(glm::mat4& translation, bool reset)
 {
-	this->translations.push_back(translation);
-	this->translation = translation * this->translation;
+	if (reset)
+	{
+		this->translation = translation * glm::mat4(1.0f);
+	}
+	else
+	{
+		this->translation = translation * this->translation;
+	}
 
 	this->computeTransform();
+	this->modified = true;
 }
 
-void Transform::addRotation(glm::mat4& rotation)
+void Transform::rotate(glm::quat& rotation)
 {
-	this->rotations.push_back(rotation);
+	this->orientation = rotation * this->orientation;
+	this->rotation = glm::toMat4(this->orientation);
+
+	this->computeTransform();
+	this->modified = true;
 }
 
-void Transform::addScale(glm::mat4& scale)
+void Transform::resetTransform()
 {
-	this->scales.push_back(scale);
+	this->transform = glm::mat4(1.0f);
+	this->translation = glm::mat4(1.0f);
+
+	this->orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	this->rotation = glm::mat4(1.0f);
+
+	this->modified = false;
 }
 
-void Transform::resetTranslation()
+void Transform::clearTransform()
 {
+	this->resetTransform();
+	this->transformationsCache.clear();
 }
 
-void Transform::resetRotation()
+void Transform::saveTransform()
 {
-}
-
-void Transform::resetScale()
-{
-}
-
-void Transform::computeTranslations()
-{
-	// TODO JT : TEST Historique
-	//this->translation = glm::mat4(1.0f);
-	//for (std::vector<glm::mat4>::iterator iterator = this->translations.end(); iterator != this->translations.begin(); iterator--)
-	//{
-	//	this->translation *= (*iterator);
-	//}
-}
-
-void Transform::computeRotations()
-{
-}
-
-void Transform::computeScale()
-{
+	if (this->modified)
+	{
+		this->transformationsCache.push_back(this->transform);
+	}
+	this->resetTransform();
 }

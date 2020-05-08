@@ -19,25 +19,30 @@ class Object3D : public hasName, public hasId
 	std::vector<Object3D*> children;
 
 	glm::vec3 position, scale, up;
-	glm::quat orientation;
 	glm::mat4 model;
-	Transform* transform;
+
 	bool visible;
 
 	Object3D();
 	Object3D(unsigned int id, std::string name, Object3D* parent);
 	~Object3D();
 
-	void setQuaternion(glm::quat orientation);
-
 	void init();
 	bool isRootNode();
 	bool hasChildren();
 	void addChild(Object3D* child);
 
-	void computeModel(bool fromParent);
 	glm::vec3 computePosition();
-	void translate(glm::vec3 translationVector);
+	void computeModel();
+
+	void translate(glm::vec3 translationVector, bool reset);
+	void rotate(glm::vec3 rotationVector);
+
+	void saveTransform();
+	void clearTransform();
 
 	virtual void draw() = 0;
+
+	private:
+	Transform* transform;
 };

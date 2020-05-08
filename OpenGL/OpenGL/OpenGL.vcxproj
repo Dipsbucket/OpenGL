@@ -173,6 +173,7 @@
     <ClCompile Include="src\opengl\ui\ImGuiWindow.cpp" />
     <ClCompile Include="src\opengl\utils\ShaderUtils.cpp" />
     <ClCompile Include="src\utils\FileUtils.cpp" />
+    <ClCompile Include="src\utils\MathUtils.cpp" />
     <ClCompile Include="src\utils\StringUtils.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="src\opengl\ui\ImGuiWindow.h" />
     <ClInclude Include="src\opengl\utils\ShaderUtils.h" />
     <ClInclude Include="src\utils\FileUtils.h" />
+    <ClInclude Include="src\utils\MathUtils.h" />
     <ClInclude Include="src\utils\StringUtils.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_common.hpp" />

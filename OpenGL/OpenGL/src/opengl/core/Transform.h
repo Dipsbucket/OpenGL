@@ -5,6 +5,9 @@
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
 
+#include "../utils/StringUtils.h"
+#include "../utils/MathUtils.h"
+
 class Transform
 {
 	public:
@@ -15,25 +18,18 @@ class Transform
 
 	void computeTransform();
 
-	void addTranslation(glm::mat4& translation);
-	void addRotation(glm::mat4& rotation);
-	void addScale(glm::mat4& scale);
+	void translate(glm::mat4& translation, bool reset);
+	void rotate(glm::quat& rotation);
 
-	void resetTranslation();
-	void resetRotation();
-	void resetScale();
+	void resetTransform();
+	void clearTransform();
+	void saveTransform();
+
+	private:
+	bool modified;
+	glm::quat orientation;
 
 	glm::mat4 translation;
-	private:
-
 	glm::mat4 rotation;
-	glm::mat4 scale;
-
-	std::vector<glm::mat4> translations;
-	std::vector<glm::mat4> rotations;
-	std::vector<glm::mat4> scales;
-
-	void computeTranslations();
-	void computeRotations();
-	void computeScale();
+	std::vector<glm::mat4> transformationsCache;
 };

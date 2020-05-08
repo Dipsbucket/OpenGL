@@ -190,6 +190,7 @@ void ImGuiWindow::initConfig()
 	this->selectedObject = 0;
 
 	this->translation = glm::vec3(0.0f);
+	this->rotation = glm::vec3(0.0f);
 }
 
 void ImGuiWindow::createSceneMenu(EventManager* eventManager)
@@ -214,45 +215,45 @@ void ImGuiWindow::createTransformMenu(EventManager* eventManager)
 		{
 			std::vector<const char*> object = eventManager->sceneManager->getNames();
 			ImGui::Combo("Object", &this->selectedObject, object.data(), object.size());
+			if (eventManager->currentObject != this->selectedObject)
+			{
+				this->translation = glm::vec3(0.0f);
+				eventManager->switchObject(this->selectedObject);
+				eventManager->saveTransforms();
+			}
 
 			glm::vec3 position = eventManager->sceneManager->getObject(this->selectedObject)->computePosition();
 			ImGui::InputFloat3("Position", glm::value_ptr(position));
 
-			ImGui::SliderFloat3("", glm::value_ptr(this->translation), -5.0f, 5.0f);
+			ImGui::InputFloat3("T", glm::value_ptr(this->translation));
 			ImGui::SameLine();
 			if (ImGui::Button("Translate"))
 			{
-				eventManager->translateObject(this->selectedObject, this->translation);
+				eventManager->translateObject(this->selectedObject, this->translation, false);
+			}
+
+			ImGui::InputFloat3("R", glm::value_ptr(this->rotation));
+			ImGui::SameLine();
+			if (ImGui::Button("Rotate World"))
+			{
+				eventManager->rotateObject(this->selectedObject, this->rotation);
+			}
+
+			if (ImGui::Button("Undo"))
+			{
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Reset"))
+			{
 				this->translation = glm::vec3(0.0f);
-			}
-
-			if (ImGui::Button("Translation"))
-			{
+				eventManager->clearTransform(this->selectedObject);
 			}
 			ImGui::SameLine();
-			if (ImGui::Button("Rotation"))
+			if (ImGui::Button("Reset All"))
 			{
+				this->translation = glm::vec3(0.0f);
+				eventManager->clearTransforms();
 			}
-			ImGui::SameLine();
-			if (ImGui::Button("Scale"))
-			{
-			}
-			ImGui::SameLine();
-			ImGui::Text(": Undo");
-
-			if (ImGui::Button("Translation"))
-			{
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Rotation"))
-			{
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Scale"))
-			{
-			}
-			ImGui::SameLine();
-			ImGui::Text(": Reset");
 		}
 	}
 }
