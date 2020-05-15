@@ -1,16 +1,18 @@
 #include "Mesh.h"
 
-Mesh::Mesh(unsigned int id, std::string name, Object3D* parent) : Object3D(id, name, parent)
+Mesh::Mesh(std::string name, Object3D* parent) : Object3D(name, parent)
 {
 	// Ne pas utiliser
 }
 
-Mesh::Mesh(unsigned int id, std::string name, Object3D* parent, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : Object3D(id, name, parent)
+Mesh::Mesh(std::string name, Object3D* parent, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : Object3D(name, parent)
 {
 	this->vertices = vertices;
 	this->verticesSize = vertices.size() * sizeof(float);
 	this->indices = indices;
 	this->indicesSize = indices.size() * sizeof(unsigned int);
+
+	this->drawPrimitive = GL_TRIANGLES;
 
 	this->init();
 }
@@ -35,7 +37,7 @@ void Mesh::draw()
 	if (!this->isRootNode())
 	{
 		glBindVertexArray(this->vao);
-		glDrawElements(GL_TRIANGLES, this->indicesSize, GL_UNSIGNED_INT, 0);
+		glDrawElements(this->drawPrimitive, this->indicesSize, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
 }

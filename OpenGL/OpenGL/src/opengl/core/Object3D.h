@@ -24,7 +24,7 @@ class Object3D : public hasName, public hasId
 	bool visible;
 
 	Object3D();
-	Object3D(unsigned int id, std::string name, Object3D* parent);
+	Object3D(std::string name, Object3D* parent);
 	~Object3D();
 
 	void init();
@@ -36,13 +36,15 @@ class Object3D : public hasName, public hasId
 	void computeModel();
 
 	void translate(glm::vec3 translationVector, bool reset);
+	// TODO JT
 	void rotate(glm::vec3 rotationVector);
+	void rotateQuaternion(glm::quat rotation);
 
 	void saveTransform();
 	void clearTransform();
 
 	virtual void draw() = 0;
 
-	private:
+	protected:
 	Transform* transform;
 };

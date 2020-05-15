@@ -28,7 +28,7 @@ class ImGuiWindow
 	ImVec4 clear_color;
 
 	int selectedVs, selectedFs;
-	bool depthTest;
+	bool depthTest, multiSampling;
 	int selectedRenderingMode;
 	int selectedCamera;
 	int selectedObject;

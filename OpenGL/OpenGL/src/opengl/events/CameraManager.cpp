@@ -5,8 +5,8 @@ CameraManager::CameraManager(int width, int height)
 	this->current_camera_index = 0;
 
 	// Création des caméras
-	Camera* perspectiveCamera = new Camera(1, "Default Perspective", nullptr, CameraType::PERSPECTIVE, (float)width, (float)height);
-	Camera* orthographicCamera = new Camera(2, "Default Orthographic", nullptr, CameraType::ORTHOGRAPHIC, (float)width, (float)height);
+	Camera* perspectiveCamera = new Camera("Default Perspective", nullptr, CameraType::PERSPECTIVE, (float)width, (float)height);
+	Camera* orthographicCamera = new Camera("Default Orthographic", nullptr, CameraType::ORTHOGRAPHIC, (float)width, (float)height);
 
 	this->addCamera(perspectiveCamera);
 	this->addCamera(orthographicCamera);
@@ -49,5 +49,6 @@ std::vector<const char*> CameraManager::getNames()
 void CameraManager::addCamera(Camera* camera)
 {
 	unsigned int size = this->cameraCache.size();
+	camera->id = size;
 	this->cameraCache.insert({ size, camera });
 }

@@ -13,7 +13,7 @@ class Camera : public Object3D
 	CameraType type;
 	glm::mat4 view, projection;
 
-	Camera(unsigned int id, std::string name, Object3D* parent, CameraType type, float width, float height);
+	Camera(std::string name, Object3D* parent, CameraType type, float width, float height);
 	~Camera();
 
 	void init();
@@ -24,6 +24,9 @@ class Camera : public Object3D
 	void zoom(bool in);
 	void zoomOrthographic(bool in);
 	void zoomPerspective(bool in);
+	void rotate(double yaw, double pitch);
+	// TODO JT
+	void test(float viewportWidth, float viewportHeight, float x, float y, float z);
 
 	// Surcharge
 	void draw();

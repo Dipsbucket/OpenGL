@@ -184,6 +184,7 @@ void ImGuiWindow::initConfig()
 	this->selectedFs = 0;
 
 	this->depthTest = true;
+	this->multiSampling = true;
 	this->selectedRenderingMode = 0;
 
 	this->selectedCamera = 0;
@@ -270,6 +271,9 @@ void ImGuiWindow::createOpenGLMenu(EventManager* eventManager)
 
 		ImGui::Checkbox("Depth Test", &this->depthTest);
 		eventManager->switchDepthTest(this->depthTest);
+		ImGui::SameLine();
+		ImGui::Checkbox("Multi-Sampling", &this->multiSampling);
+		eventManager->switchMultiSampling(this->multiSampling);
 	}
 }
 

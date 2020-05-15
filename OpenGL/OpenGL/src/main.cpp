@@ -39,7 +39,10 @@ double g_widthRatio;
 
 EventManager* eventManager;
 
-int g_mouseIn;
+int g_mouseIn, g_mouseInViewport;
+bool g_rotate;
+double xMouse, yMouse;
+double xMousePress, yMousePress;
 
 // =========================================================================================================
 // Méthodes
@@ -49,6 +52,11 @@ int initOpenGL()
 {
 	// Initialisation de glfw
 	glfwInit();
+
+	// TODO JT : TEST > Anti-aliasing
+	//glfwWindowHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	//glfwWindowHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Création de la window
 	const char* cTitle = StringUtils::parseString<const char*>("OpenGL");
@@ -76,6 +84,7 @@ int initOpenGL()
 
 	// Bind de la souris
 	glfwSetCursorEnterCallback(g_window, cursor_enter_callback);
+	glfwSetCursorPosCallback(g_window, cursor_position_callback);
 	glfwSetMouseButtonCallback(g_window, mouse_button_callback);
 	glfwSetScrollCallback(g_window, scroll_callback);
 
@@ -90,6 +99,7 @@ int initOpenGL()
 	g_width = OpenGLConstants::SCREEN_WIDTH;
 	g_height = OpenGLConstants::SCREEN_HEIGHT;
 	g_widthRatio = (double)1 / (double)3;
+	g_rotate = false;
 
 	printOpenGLInfos();
 
@@ -120,6 +130,22 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void cursor_position_callback(GLFWwindow* window, double xPos, double yPos)
 {
+	xMouse = xPos < g_width ? xPos : g_width;
+	yMouse = yPos < g_height ? yPos : g_height;
+	g_mouseInViewport = xPos <= g_width && yPos <= g_height;
+	//// TODO JT : TEST
+	std::cout << "xPos : " << xPos << ", yPos : " << yPos << std::endl;
+	//if (g_rotate)
+	//{
+	//	double xOffset = xMouse - xMousePress;
+	//	//double yOffset = yMouse - yMousePress;
+	//	double yOffset = yMousePress - yMouse;
+	//	eventManager->manageRotateCamera(xOffset, yOffset);
+
+	//	// TODO JT : TEST
+	//	xMousePress = xMouse;
+	//	yMousePress = yMouse;
+	//}
 }
 
 void cursor_enter_callback(GLFWwindow* window, int entered)
@@ -129,11 +155,32 @@ void cursor_enter_callback(GLFWwindow* window, int entered)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+	//if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	//{
+	//	if (g_mouseInViewport)
+	//	{
+	//		g_rotate = true;
+	//		xMousePress = xMouse;
+	//		yMousePress = yMouse;
+	//		std::cout << "xMousePress : " << xMousePress << ", yMousePress : " << yMousePress << std::endl;
+	//	}
+	//}
+	//if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+	//{
+	//	g_rotate = false;
+	//}
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-	}
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-	{
+		std::cout << "button pressed" << std::endl;
+		if (g_mouseInViewport)
+		{
+			// TODO JT : TEST
+			GLfloat winZ;
+			glReadPixels((GLint)xMouse, (GLint)(g_height - yMouse), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+			std::cout << "winZ : " << winZ << std::endl;
+
+			eventManager->manageRotateCameraArcBall((float)g_width, (float)g_height, (float)xMouse, (float)yMouse, (float)winZ);
+		}
 	}
 }
 
@@ -172,26 +219,43 @@ void render(GLFWwindow* window)
 	eventManager->createSceneManager();
 
 	// Création de l'objet à rendre
-	Mesh triangle = MeshFactory::buildTriangle(1);
-	Mesh quad = MeshFactory::buildQuad(2);
-	//Mesh tetrahedron = MeshFactory::buildTetrahedron(3);
+	Mesh linesUnit = MeshFactory::buildLinesUnit();
+	Mesh linesCoordinateSystem = MeshFactory::buildLinesCoordinateSystem(2);
+	Mesh triangle = MeshFactory::buildPolygon("Triangle", 3);
+	Mesh quad = MeshFactory::buildPolygon("Quad", 4);
+	Mesh hexagon = MeshFactory::buildPolygon("Hexagon", 6);
+	Mesh sphere = MeshFactory::buildSphere(12, 12);
 
 	//triangle.translate(glm::vec3(1.0f, 0.0f, 0.0f));
 	//glm::quat rotation = glm::quat(glm::angleAxis(glm::radians(60.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 	//triangle.setQuaternion(rotation);
 
 	// Ajout des éléments de la scène
+
+	//eventManager->sceneManager->addObject(0, &triangle);
+	eventManager->sceneManager->addObject(0, &linesUnit);
+	eventManager->sceneManager->addObject(0, &linesCoordinateSystem);
 	eventManager->sceneManager->addObject(0, &triangle);
-	eventManager->sceneManager->addObject(1, &quad);
+	//eventManager->sceneManager->addObject(0, &hexagon);
+
 	//eventManager->sceneManager->addObject(0, &tetrahedron);
 
 	// Création du renderer
 	Renderer renderer;
 
+	// TODO JT : TEST > Anti-aliasing
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_LINE_SMOOTH);
+	//glEnable(GL_POLYGON_SMOOTH);
+
 	// Propriétés de rendue
 	glEnable(GL_DEPTH_TEST);
-	glPointSize(3.0);
-	glLineWidth(2.0);
+	glEnable(GL_MULTISAMPLE);
+	//glPointSize(3.0);
+	//glLineWidth(2.0);
 
 	while (!glfwWindowShouldClose(window))
 	{

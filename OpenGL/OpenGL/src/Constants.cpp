@@ -26,3 +26,9 @@ namespace ShaderConstants
 	extern const std::string uView;
 	extern const std::string uProjection;
 }
+
+namespace TransformConstants
+{
+	extern const double ROTATION_SENSITIVITY;
+	extern const double MAX_PITCH;
+}

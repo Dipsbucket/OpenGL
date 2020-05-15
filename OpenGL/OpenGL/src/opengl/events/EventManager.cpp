@@ -5,6 +5,7 @@ EventManager::EventManager()
 	// OpenGL
 	this->currentRenderingMode = 0;
 	this->enableDepthTest = true;
+	this->enableMultiSampling = true;
 
 	// Camera
 	this->currentCameraIndex = 0;
@@ -78,6 +79,23 @@ void EventManager::switchDepthTest(bool enable)
 	}
 }
 
+void EventManager::switchMultiSampling(bool enable)
+{
+	if (enable != this->enableMultiSampling)
+	{
+		if (enable)
+		{
+			glEnable(GL_MULTISAMPLE);
+		}
+		else
+		{
+			glDisable(GL_MULTISAMPLE);
+		}
+
+		this->enableMultiSampling = enable;
+	}
+}
+
 void EventManager::switchShaders(int vsIndex, int fsIndex)
 {
 	shaderManager->getShaderProgram()->clear();
@@ -111,6 +129,25 @@ void EventManager::manageScroll(double offset)
 	if (shaderManager->hasMVP())
 	{
 		cameraManager->getCurrentCamera()->zoom(offset > 0);
+		this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->model, cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
+	}
+}
+
+void EventManager::manageRotateCamera(double xOffset, double yOffset)
+{
+	if (shaderManager->hasMVP())
+	{
+		// TODO JT : TEST
+		//cameraManager->getCurrentCamera()->rotate(xOffset, yOffset);
+		//this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->model, cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
+	}
+}
+
+void EventManager::manageRotateCameraArcBall(float viewportWidth, float viewportHeight, float x, float y, float z)
+{
+	if (shaderManager->hasMVP())
+	{
+		cameraManager->getCurrentCamera()->test(viewportWidth, viewportHeight, x, y, z);
 		this->shaderManager->setMVPUniforms(cameraManager->getCurrentCamera()->model, cameraManager->getCurrentCamera()->view, cameraManager->getCurrentCamera()->projection);
 	}
 }

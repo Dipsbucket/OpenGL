@@ -10,7 +10,7 @@ Object3D::Object3D()
 	this->init();
 }
 
-Object3D::Object3D(unsigned int id, std::string name, Object3D* parent)
+Object3D::Object3D(std::string name, Object3D* parent)
 {
 	this->id = id;
 	this->name = name;
@@ -91,23 +91,29 @@ void Object3D::rotate(glm::vec3 rotationVector)
 	glm::quat yRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	glm::quat zRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 
-	if (rotationVector.x > 0.0f)
+	if (rotationVector.x != 0.0f)
 	{
 		radians = glm::radians(rotationVector.x);
 		xRotation = glm::angleAxis(radians, glm::vec3(1.0f, 0.0f, 0.0f));
 	}
-	if (rotationVector.y > 0.0f)
+	if (rotationVector.y != 0.0f)
 	{
 		radians = glm::radians(rotationVector.y);
 		yRotation = glm::angleAxis(radians, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
-	if (rotationVector.z > 0.0f)
+	if (rotationVector.z != 0.0f)
 	{
 		radians = glm::radians(rotationVector.z);
 		zRotation = glm::angleAxis(radians, glm::vec3(0.0f, 0.0f, 1.0f));
 	}
 
 	glm::quat rotation = xRotation * yRotation * zRotation;
+	this->transform->rotate(rotation);
+	this->computeModel();
+}
+
+void Object3D::rotateQuaternion(glm::quat rotation)
+{
 	this->transform->rotate(rotation);
 	this->computeModel();
 }

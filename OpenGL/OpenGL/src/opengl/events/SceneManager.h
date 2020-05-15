@@ -12,11 +12,12 @@ class SceneManager
 	SceneManager();
 	~SceneManager();
 
+	std::unordered_map<unsigned int, std::string> getNamesById();
 	std::vector<const char*> getNames();
-	Object3D* getObject(unsigned int index);
+	Object3D* getObject(unsigned int key);
 
-	void addObject(unsigned int parentIndex, Object3D* object);
+	void addObject(unsigned int key, Object3D* object);
 	void saveTransforms();
-	void clearTransform(unsigned int id);
+	void clearTransform(unsigned int key);
 	void clearTransforms();
 };

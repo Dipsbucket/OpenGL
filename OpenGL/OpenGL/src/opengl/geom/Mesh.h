@@ -43,9 +43,10 @@ class Mesh :public Object3D
 	std::vector<Texture> textures;
 	unsigned int verticesSize, indicesSize;
 	unsigned int vao;
+	GLenum drawPrimitive;
 
-	Mesh(unsigned int id, std::string name, Object3D* parent);
-	Mesh(unsigned int id, std::string name, Object3D* parent, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+	Mesh(std::string name, Object3D* parent);
+	Mesh(std::string name, Object3D* parent, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 	virtual ~Mesh();
 
 	void draw() override;
