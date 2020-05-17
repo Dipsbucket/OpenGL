@@ -254,6 +254,7 @@ void render(GLFWwindow* window)
 	// Propriétés de rendue
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
+	// TODO JT : TEST
 	//glPointSize(3.0);
 	//glLineWidth(2.0);
 
